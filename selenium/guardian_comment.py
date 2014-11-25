@@ -4,7 +4,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
+import guardian_time
 
 
 
@@ -13,41 +14,53 @@ def findTopCommentAndTopNumber(self, url):
     print "pre 1"
     self.driver.get(url)
     print "pre 2"
+    resultDict = {}
 ##  print "about to start waiting"
 ##  print "finish waiting"
 
     counter = 0
-    ##viewMore = self.driver.find_element_by_css_selector('.discussion__show-button.button--show-more.button.button--large.button--primary.js-discussion-show-button')
-    ##viewMore = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.discussion__show-button.button--show-more.button.button--large.button--primary.js-discussion-show-button')))
-    ##.//*[@id='comments-order-popup']/li[2]/button
     comm = None
     try:
         comm = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR,".d-comment__body")))
     except (NoSuchElementException, TimeoutException) as e:
-        print " NoSuchElementException TimeoutException .d-comment__body"
-        return
+        print "NoSuchElementException TimeoutException .d-comment__body"
+        return resultDict
 
-    print "d-comment__body 1"
+    timeStamp = None
+    try:
+        time = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR,".content__dateline>time")))
+        timeStamp = guardian_time.guardianTimeToTimeStamp(time.get_attribute("datetime"))
+    except (NoSuchElementException, TimeoutException) as e:
+        print "NoSuchElementException /TimeoutException .content__dateline>time"
+        return resultDict
+
+    if timeStamp is None:
+        print "*****************ERROR Timestamp Error"
+        return resultDict
+
     """BROWSER UI: LOAD COMMENTS"""
 
     try:
-    ##aria-controls="comments-order-popup"
-    ##viewMore1 = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH,".//div[@id='comments']/div/div/div[2]/div[4]/div[1]/button")))    
-        ##viewMore1 = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH,"//button[@aria-controls='comments-order-popup']")))
+
         print "pre 3"
-        viewMore1 = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH,"//button[@aria-controls='comments-order-popup']")))
+        viewMore1 = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH,"//button[@aria-controls='comments-order-popup']")))
         print "pre 4"
         viewMore1.click()
         print "FirstClick"
-        ##data-link-name="comments-oldest"
-        ##driver.findElement(By.xpath("//div[@data-link-name='comments-oldest']"))
-        ##driver.findElement(By.xpath("//div[@_celltype='celltype']"))
-        viewMore = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, "//button[@data-link-name='comments-oldest']")))
-        ##viewMore = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, ".//ul[@id='comments-order-popup']/li[2]/button")))
+
+        viewMore = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//button[@data-link-name='comments-oldest']")))
+
         viewMore.click()
         print "AFTER CLICK OLDEST"
     except TimeoutException:
-        print "First click TimeoutException"
+        print "First click TimeoutException viewMore"
+        return resultDict
+    except ElementNotVisibleException:
+        print "ElementNotVisibleException viewMore"
+        return resultDict
+    except Exception as e:
+        print "Unexpected viewMore"
+        return resultDict
 
     try:
         WebDriverWait(self.driver, 5).until(EC.staleness_of(comm))
@@ -70,24 +83,47 @@ def findTopCommentAndTopNumber(self, url):
             print 'AFTER COMMENT PAGE: {}'.format(index)
     except (TimeoutException, NoSuchElementException) as e:
         print "TimeoutException PAGENATION"
+    except Exception as e:
+        print "Unexpected .button.button--small.button--tertiary.pagination__action.js-discussion-change-page"
+        
 
 
     topComment = ''
     topCommentNumber = 5
 
-    pageLinks = self.driver.find_elements_by_css_selector('.button.button--small.button--tertiary.pagination__action.js-discussion-change-page')
+    pageLinks = None 
+    try:
+        pageLinks = self.driver.find_elements_by_css_selector('.button.button--small.button--tertiary.pagination__action.js-discussion-change-page')
+    except Exception as e:
+        print "Unexpected exceptions {}".format(e)
+        return resultDict
+
+
     seen = set()
 
     for index, link in enumerate(pageLinks):
 
         print 'BEFORE COMMENT PAGE: {}'.format(index)
         
-        sublink = self.driver.find_elements_by_css_selector('.button.button--small.button--tertiary.pagination__action.js-discussion-change-page')[index] 
+        sublink = None
+        try:
+            sublink = self.driver.find_elements_by_css_selector('.button.button--small.button--tertiary.pagination__action.js-discussion-change-page')[index] 
+        except Exception as e:
+            print "Unexpected exceptions {}".format(e)
+            continue
+
+
         """Capture the first comment here"""     
         href = sublink.get_attribute('href')
+        oldComments = None
 
         if href not in seen:
-            oldComments = WebDriverWait(self.driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".d-comment__inner.d-comment__inner--top-level")))
+            try:
+                oldComments = WebDriverWait(self.driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".d-comment__inner.d-comment__inner--top-level")))
+            except Exception as e:
+                print "Unexpected exceptions {}".format(e)
+                continue
+
             seen.add(href)
             sublink.click()
             print "HREF: {}".format(href)
@@ -95,10 +131,12 @@ def findTopCommentAndTopNumber(self, url):
             
             for cnt, oldComment in enumerate(oldComments):
                 try:
-                    WebDriverWait(self.driver, 6).until(EC.staleness_of(oldComment))
+                    WebDriverWait(self.driver, 3).until(EC.staleness_of(oldComment))
                     print 'PAGE {} OLD COMMENTS {}'.format(index, cnt)
                 except TimeoutException:
                     print "TimeoutException Old Comments"
+                except Exception as e:
+                    print "Unexpected d-comment__inner.d-comment__inner--top-level: {}".format(e)
 
             try:
                 num = 0
@@ -107,12 +145,10 @@ def findTopCommentAndTopNumber(self, url):
                     print 'BEFORE PAGE: {} COMMENT: {}'.format(index, idx)
                     try:
                         numText = newComment.find_element_by_css_selector('.d-comment__recommend-count--old')
-                        print numText.text
                         num = int(numText.text)
-                        ##num = int(numText)
-                    except NoSuchElementException:
-                        print "NO SuchElementException"
-                    # num = 1
+                    except Exception as e:
+                        print "Unexpected d-comment__recommend-count--old: {}".format(e)
+                        
                     if isinstance( num, int ) and num > topCommentNumber:
                         topCommentNumber = num
                         _topComment = newComment.find_element_by_css_selector('.d-comment__body')
@@ -121,8 +157,13 @@ def findTopCommentAndTopNumber(self, url):
                         print 'TOP Number: {} COMMENT: {}'.format(topCommentNumber, topComment.encode('utf-8'))
             except TimeoutException:
                 print "TimeoutException New Comments"
+            except Exception as e:
+                print "Unexpected New Comments"
+                               
 
-    print "DONE Top Comment: {} TopCommentNumber: {}".format(topComment.encode('utf-8'), topCommentNumber)
+    print "DONE Top Comment: {} TopCommentNumber: {} Timestamp: {}".format(topComment.encode('utf-8'), topCommentNumber, timeStamp)
     seen.clear()
-    return {'topComment':topComment, 'topCommentNumber':topCommentNumber}
+    resultDict = {'topComment':topComment, 'topCommentNumber':topCommentNumber,'timeStamp': timeStamp}
+    print "DONE TopComment {}".format(resultDict['topComment'])
+    return resultDict
 

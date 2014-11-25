@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
-import guardian_comment
+import guardian_comment, timeHelper
 
 
 
@@ -15,23 +15,40 @@ class Article:
         self.title = title
         self.numComments = numComments
         self.topComment = ''
+        self.age = 0
         self.topCommentNum = 0
-      
-   
+
+
+    @property   
     def url(self):
         return self.url
+    @property    
     def title(self):
         return self.title
+    @property    
     def numComments(self):
         return self.numComments
-    def setTopComment(self, comment):
-        self.topComment = comment
-    def setTopCommentNum(self, num):
-        self.topCommentNum = num
+    @property            
     def topComment(self):
         return self.topComment
+    @property    
     def topCommentNum(self):
         return self.topCommentNum
+    @property
+    def age(self):
+        return self.age
+
+    @topComment.setter    
+    def topComment(self, value):
+        self.topComment = value
+    @topCommentNum.setter
+    def topCommentNum(self, value):
+        self.topCommentNum = value
+    @age.setter        
+    def age(self, value):
+        self.age = value
+
+
 
 
 class PythonOrgSearch(unittest.TestCase):
@@ -44,6 +61,7 @@ class PythonOrgSearch(unittest.TestCase):
         self.driver.get("http://www.theguardian.com")
         containers = None
         articles = []
+        COMMENT_NUM_CRITERIA = 300
 
         try:
 
@@ -55,6 +73,9 @@ class PythonOrgSearch(unittest.TestCase):
             return
         except NoSuchElementException:
             print "WARNING: No NoSuchElementException containers"
+            return
+        except Exception as e:
+            print "WARNING: Expected containers: {}".format(e)
             return
 
         for index, container in enumerate(containers):
@@ -68,16 +89,18 @@ class PythonOrgSearch(unittest.TestCase):
             try:
                 article = container.find_element_by_css_selector(".fc-item__link")
                 title = container.find_element_by_css_selector(".u-faux-block-link__cta")
-            except NoSuchElementException:
+            except Exception as e:
                 print "WARNING: NoSuchElementException article"
+                continue
 
 ##.fc-item__link
 ##.u-faux-block-link__cta
 
             try:
                 comment = container.find_element_by_css_selector('.js-item__comment-count')
-            except NoSuchElementException:
+            except:
                 print "WARNING: NoSuchElementException comment"
+                continue
 
             href = article.get_attribute("href")
             textTitle = title.text
@@ -87,37 +110,69 @@ class PythonOrgSearch(unittest.TestCase):
                 print "CONTINUE INDEX {}".format(index)
                 continue
 
-
             commentNumber = 0
-
             try:
                 commentNumber = int(comment.text)
             except ValueError:
-                ##print textTitle
-                ##print href
-                ##print "ValueError Exception comment Number NOT WORKING"
+                continue
+            except Exception as e:
                 continue
 
-            if commentNumber > 100:
+            if commentNumber > COMMENT_NUM_CRITERIA:
                 art = Article(href, textTitle, commentNumber)
                 ##print art.title
                 ##print art.url
                 ##print art.numComments
                 ##print "#####################################################"
                 articles.append(art)
-        
-        print "Total articles: {}".format(len(articles))
+
+        articleLen = len(articles)
         for x in articles:
-    ##        print "################################"
-    ##        print x.title
-    ##        print x.numComments
-    ##        print x.url
-            topCommentDict = guardian_comment.findTopCommentAndTopNumber(self, x.url)
-            x.setTopComment(topCommentDict['topComment'])
-            x.setTopCommentNum(topCommentDict['topCommentNumber'])
+
+            topCommentDict = guardian_comment.findTopCommentAndTopNumber(self, x.url).copy()
+
+            if isinstance (topCommentDict,dict) == False or isinstance (topCommentDict,dict) and len(topCommentDict) == 0:
+                print "REMOVED TITLE {}".format(x.title.encode('utf-8'))
+                articles.remove(x)
+                print ""
+                continue
+
+            for key, value in topCommentDict.iteritems():
+                print "Key NOV25 {} Value{}".format(key, value)
+            
+                if 'topComment' == key and isinstance(value, basestring):
+                    x.topComment = value
+                elif 'topCommentNumber' == key and isinstance(value, int):
+                    x.topCommentNum = value
+                elif 'timeStamp' == key and isinstance(value, int):
+                    x.age = value
+                else:
+                    print "REMOVED TITLE {}".format(x.title.encode('utf-8'))
+                    articles.remove(x)
+                    print ""
+                    continue
+
+
+            # if topCommentDict is None or topCommentDict and len(topCommentDict) != 3:
+            #     print "REMOVED TITLE {}".format(x.title.encode('utf-8'))
+            #     articles.remove(x)
+            #     continue;
+            
+            ##qualifying the object attributes
+            # if isinstance(_comm, str) and len(_comm) > 5 and isinstance(_commNum, int) and _commNum > 1 and isinstance(_age, int) and _age > 1:
+            #     print "ADD TITLE: {} AGE: {%f} TOP COM NUMBER: {%f} \n COMMNET {}".format(x.title.encode('utf-8'), _age, _commNum, _comm.encode('utf-8'))
+            #     x.setTopComment(_comm)
+            #     x.setTopCommentNum(_commNum)
+            #     x.setAge(_age)
+            # else:
+            #     print "REMOVED TITLE {}".format(x.title.encode('utf-8'))
+            #     articles.remove(x)
+            #     continue
+
   ##          print "################################"
 
-
+        timeHelper.sortTimeForGuardian(articles)
+        print "BEFORE Total articles: {} AFTER Total articles: {}".format(articleLen, len(articles))
         for x in articles:
             print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
             print x.title
@@ -125,12 +180,12 @@ class PythonOrgSearch(unittest.TestCase):
             print x.url
             print x.topComment
             print x.topCommentNum
+            print x.age
             print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
             ##print "TITLE: {} COMMENT_NUMBER: {} LINK: {}".format(textTitle, commentNumber, href)
             ##print "TITLE: {} COMMENT_NUMBER: {} LINK: {}".format(textTitle, commentNumber, href)
             
-
 
 
 ##23
@@ -161,3 +216,7 @@ class PythonOrgSearch(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+
+
