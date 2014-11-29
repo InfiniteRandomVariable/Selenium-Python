@@ -1,52 +1,12 @@
 import unittest
 from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
-import guardian_comment, timeHelper
-
-
-
-class Article:
-   
-    def __init__(self, url, title, numComments):
-        self.url = url
-        self.title = title
-        self.numComments = numComments
-        self.topComment = ''
-        self.age = 0
-        self.topCommentNum = 0
-
-
-    @property   
-    def url(self):
-        return self.url
-    @property    
-    def title(self):
-        return self.title
-    @property    
-    def numComments(self):
-        return self.numComments
-    @property            
-    def topComment(self):
-        return self.topComment
-    @property    
-    def topCommentNum(self):
-        return self.topCommentNum
-    @property
-    def age(self):
-        return self.age
-
-    @topComment.setter    
-    def topComment(self, value):
-        self.topComment = value
-    @topCommentNum.setter
-    def topCommentNum(self, value):
-        self.topCommentNum = value
-    @age.setter        
-    def age(self, value):
-        self.age = value
+import guardian_comment, timeHelper, common_classes
+from urlparse import urlparse
 
 
 
@@ -54,18 +14,34 @@ class Article:
 class PythonOrgSearch(unittest.TestCase):
 
     def setUp(self):
-        self.driver = webdriver.Firefox()
+        ##self.driver = webdriver.Firefox()
+        self.driver = webdriver.Remote(command_executor='http://127.0.0.1:4444/wd/hub', desired_capabilities=DesiredCapabilities.FIREFOX)
+
+
+    def classifyTag(tag):
+        if tag =='commentisfree':
+            return 'opinion'
+        else:
+            return tag
+
 
     def test_search_in_python_org(self):
         
-        self.driver.get("http://www.theguardian.com")
+        
+        DOMAIN_URL = "http://www.theguardian.com"
         containers = None
         articles = []
-        COMMENT_NUM_CRITERIA = 300
+        MAX_NUM_ARTICLES = 10
+        COMMENT_NUM_CRITERIA = 200
+        TOP_COMMENT_STRING_LEN = 20
+        TOP_COMMENT_NUM = 10
+        DEFAULT_TIME = 1416691395
+
+        self.driver.get(DOMAIN_URL)
 
         try:
 
-            WebDriverWait(self.driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".js-item__comment-count")))
+            WebDriverWait(self.driver, 60).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".js-item__comment-count")))
             containers = WebDriverWait(self.driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".fc-item__container")))
 
         except TimeoutException:
@@ -105,8 +81,13 @@ class PythonOrgSearch(unittest.TestCase):
             href = article.get_attribute("href")
             textTitle = title.text
 
+            tag = urlparse(href).path.split('/')[1]
+
+
+            if isinstance(tag, basestring) == False or len(tag) < 2 or tag =='football'or tag == 'sport':
+                continue
             ##WebDriverWait(self.driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".u-faux-block-link__overlay")))
-            if isinstance(href, basestring) == False or isinstance(textTitle,basestring) == False or len(textTitle) < 4 or len(href) < 10 :
+            if isinstance(textTitle,basestring) == False or len(textTitle) < 4:
                 print "CONTINUE INDEX {}".format(index)
                 continue
 
@@ -118,16 +99,24 @@ class PythonOrgSearch(unittest.TestCase):
             except Exception as e:
                 continue
 
+            
+
             if commentNumber > COMMENT_NUM_CRITERIA:
-                art = Article(href, textTitle, commentNumber)
+                art = common_classes.Article(href, textTitle, commentNumber)
+                _tag = classifyTag(tag)
+                art.tag = _tag
                 ##print art.title
                 ##print art.url
                 ##print art.numComments
                 ##print "#####################################################"
                 articles.append(art)
 
+            if len (articles) > MAX_NUM_ARTICLES:
+                break
+
         articleLen = len(articles)
-        for x in articles:
+
+        for x in articles[:]:
 
             topCommentDict = guardian_comment.findTopCommentAndTopNumber(self, x.url).copy()
 
@@ -138,19 +127,19 @@ class PythonOrgSearch(unittest.TestCase):
                 continue
 
             for key, value in topCommentDict.iteritems():
-                print "Key NOV25 {} Value{}".format(key, value)
+                print "Key NOV25 %s Value %s" % (key, value)
             
-                if 'topComment' == key and isinstance(value, basestring):
+                if 'topComment' == key and isinstance(value, basestring) and len(value) > TOP_COMMENT_STRING_LEN:
                     x.topComment = value
-                elif 'topCommentNumber' == key and isinstance(value, int):
+                elif 'topCommentNumber' == key and isinstance(value, int) and value > TOP_COMMENT_NUM:
                     x.topCommentNum = value
-                elif 'timeStamp' == key and isinstance(value, int):
+                elif 'timeStamp' == key and isinstance(value, int) and value > DEFAULT_TIME:
                     x.age = value
                 else:
                     print "REMOVED TITLE {}".format(x.title.encode('utf-8'))
                     articles.remove(x)
                     print ""
-                    continue
+                    break
 
 
             # if topCommentDict is None or topCommentDict and len(topCommentDict) != 3:
@@ -173,7 +162,7 @@ class PythonOrgSearch(unittest.TestCase):
 
         timeHelper.sortTimeForGuardian(articles)
         print "BEFORE Total articles: {} AFTER Total articles: {}".format(articleLen, len(articles))
-        for x in articles:
+        for x in articles[:]:
             print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
             print x.title
             print x.numComments
@@ -181,6 +170,7 @@ class PythonOrgSearch(unittest.TestCase):
             print x.topComment
             print x.topCommentNum
             print x.age
+            print x.tag
             print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
             ##print "TITLE: {} COMMENT_NUMBER: {} LINK: {}".format(textTitle, commentNumber, href)

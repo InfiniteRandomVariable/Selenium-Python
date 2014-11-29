@@ -1,21 +1,22 @@
-import unittest
 import pytz, datetime
 import calendar
 import re
 
-def formatGuardianString(timeStr):
-	## change to r'[-|+]\d\S$'
-	return re.sub(r'[-|+]\d\d\d\d$', "",timeStr)
+def formatAtlanticString(timeStr):
+	##2014-11-25T15:00:00-05:00
+	return re.sub(r'[-|+]\d+:\d+\S$', "",timeStr)
 
-def guardianTimeToTimeStamp(timeStr):
+def timeToTimeStamp(timeStr):
 	
 	##GURDIAN TIME STAMP STRING
 	##2014-11-22T16:23:15-0500
+	##The 2nd part (-0500) is actually showing what time zone you are in. That means that you are 5 hours behind Greenwich Mean Time (also known as UTC). 
+	##-0500 right now is US Central Time. 
 	
 	local = pytz.timezone ("US/Eastern")
 	##Python 2.7 Bug with %z. Fixed Python 3.x
 	##naive = datetime.datetime.strptime (timeStr, "%Y-%m-%dT%H:%M:%S%z")
-	formattedTimeStr = formatGuardianString(timeStr)
+	formattedTimeStr = formatAtlanticString(timeStr)
 	naive = datetime.datetime.strptime (formattedTimeStr, "%Y-%m-%dT%H:%M:%S")
 
 	local_dt = local.localize(naive, is_dst=None)
@@ -24,9 +25,3 @@ def guardianTimeToTimeStamp(timeStr):
 	print timeStamp
 	return timeStamp
 
-class PythonOrgSearch(unittest.TestCase):
-
-	guardianTimeToTimeStamp("2014-11-22T16:23:15")
-
-if __name__ == "__main__":
-    unittest.main()

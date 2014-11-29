@@ -34,7 +34,7 @@ def findTopCommentAndTopNumber(self, url):
         print "NoSuchElementException /TimeoutException .content__dateline>time"
         return resultDict
 
-    if timeStamp is None:
+    if timeStamp is None or timeStamp < 1000::
         print "*****************ERROR Timestamp Error"
         return resultDict
 
@@ -128,10 +128,13 @@ def findTopCommentAndTopNumber(self, url):
             sublink.click()
             print "HREF: {}".format(href)
         
-            
+            isOldCommentGone = False
             for cnt, oldComment in enumerate(oldComments):
+                if isOldCommentGone:
+                    break
                 try:
                     WebDriverWait(self.driver, 3).until(EC.staleness_of(oldComment))
+                    isOldCommentGone = True
                     print 'PAGE {} OLD COMMENTS {}'.format(index, cnt)
                 except TimeoutException:
                     print "TimeoutException Old Comments"
@@ -164,6 +167,5 @@ def findTopCommentAndTopNumber(self, url):
     print "DONE Top Comment: {} TopCommentNumber: {} Timestamp: {}".format(topComment.encode('utf-8'), topCommentNumber, timeStamp)
     seen.clear()
     resultDict = {'topComment':topComment, 'topCommentNumber':topCommentNumber,'timeStamp': timeStamp}
-    print "DONE TopComment {}".format(resultDict['topComment'])
     return resultDict
 
