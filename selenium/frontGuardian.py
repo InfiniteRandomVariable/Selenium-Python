@@ -37,6 +37,8 @@ class PythonOrgSearch(unittest.TestCase):
         TOP_COMMENT_NUM = 10
         DEFAULT_TIME = 1416691395
 
+        self.driver.implicitly_wait(1)
+        print "PID: %s" % self.driver.binary.process.pid
         self.driver.get(DOMAIN_URL)
 
         try:
