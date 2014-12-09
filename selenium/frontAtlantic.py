@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC # available sin
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import atlantic_comment, timeHelper, common_classes
 from urlparse import urlparse
-
+import json, jsonHelper
 
 
 
@@ -45,7 +45,7 @@ class FrontAtlantic(unittest.TestCase):
         self.driver.get(DOMAIN_URL)
 
         keyElements = ["//a[@data-tb-region-item='Carousel1']","//a[@data-tb-region-item='Carousel2']","//a[@data-tb-region-item='Carousel3']","//a[@data-tb-region-item='Carousel4']"]
-
+        #keyElements = ["//a[@data-tb-region-item='Carousel1']","//a[@data-tb-region-item='Carousel3']"]
 
         for keyElement in keyElements[:]:
 
@@ -104,17 +104,19 @@ class FrontAtlantic(unittest.TestCase):
 
         timeHelper.sortTimeForGuardian(articles)
         print "BEFORE Total articles: {} AFTER Total articles: {}".format(articleLen, len(articles))
-        for x in articles[:]:
-            print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-            print x.title
-            print x.numComments
-            print x.url
-            print x.topComment
-            print x.topCommentNum
-            print x.age
-            print x.tag
-            print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
+        jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),articles)
+
+        # for x in articles[:]:
+        #     print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+        #     print x.title
+        #     print x.numComments
+        #     print x.url
+        #     print x.topComment
+        #     print x.topCommentNum
+        #     print x.age
+        #     print x.tag
+        #     print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
     def tearDown(self):
         self.driver.close()

@@ -31,7 +31,6 @@ def findTopCommentAndTopNumber(self, url):
     except Exception:
         print "Exception fail to click .welcome-lightbox-continue"
 
-
     title = ''
     try:
         ##headline
