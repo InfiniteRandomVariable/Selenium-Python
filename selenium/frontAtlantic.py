@@ -41,7 +41,7 @@ class FrontAtlantic(unittest.TestCase):
         ##NUM_COMMENTS_CRITERIA = 10
         NUM_COMMENTS_CRITERIA = 2
 
-        self.driver.implicitly_wait(100)
+        #self.driver.implicitly_wait(100)
         self.driver.get(DOMAIN_URL)
 
         keyElements = ["//a[@data-tb-region-item='Carousel1']","//a[@data-tb-region-item='Carousel2']","//a[@data-tb-region-item='Carousel3']","//a[@data-tb-region-item='Carousel4']"]

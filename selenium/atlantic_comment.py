@@ -179,7 +179,7 @@ def findTopCommentAndTopNumber(self, url):
         return resultDict
 
 
-    topComment = topComment.strip()
+    topComment = re.sub(r'\\', "",topComment.strip())
 
     if len (topComment) < 10:
         print "top comment"

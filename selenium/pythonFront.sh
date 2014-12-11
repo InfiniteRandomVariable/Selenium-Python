@@ -13,22 +13,33 @@ PYTHON="$BASE/hello-world/selenium/frontAtlantic.py"
 
 INIT_HUB="python $PYTHON"
 
+function startprocedure {
+	pkill firefox-bin
+        kill `cat $PID_FILE`
+        rm -f $PID_FILE
+        exec 2>&1 $INIT_HUB 1>/tmp/$NAME.out &
+        PID=$!
+        echo $PID
+        echo $PID > $PID_FILE
+	
+}
+
+function stopprocedure {
+        pkill firefox-bin
+        # try to kill process, if succeed, remove the file else kill the process by jps
+        kill `cat $PID_FILE`
+        rm -f $PID_FILE
+}
 
 
  case $1 in
     start)
-	pkill firefox-bin
-	kill `cat $PID_FILE`
-	rm -f $PID_FILE
-	exec 2>&1 $INIT_HUB 1>/tmp/$NAME.out &
-	PID=$!
-	echo $PID
-	echo $PID > $PID_FILE;;
+	startprocedure;;
      stop)
-	pkill firefox-bin
-	# try to kill process, if succeed, remove the file else kill the process by jps 
-	kill `cat $PID_FILE`
-	rm -f $PID_FILE;;
+	stopprocedure;;
+     restart)
+	stopprocedure
+	startprocedure;;
      *)  
 	echo "usage: $NAME {start|stop}" ;;
  esac
