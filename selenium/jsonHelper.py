@@ -1,5 +1,6 @@
 import json,io,random, common_classes
 from json import dumps
+#from collections import OrderedDict
 
 class A(object):
 	def __init__(self):
@@ -20,7 +21,7 @@ def encode_b(obj):
 
 
 #json.dumps(a, default=encode_b)
-def writeToFile(timestamp,listObjects):
+def writeToFile(timestamp,listObjects,publication):
 	if isinstance(listObjects,list) == False:
 		raise Exception("Should be an article list")
 	if isinstance(timestamp, int) == False:
@@ -28,9 +29,14 @@ def writeToFile(timestamp,listObjects):
 
 	a = A()
 	a.b_list = listObjects
-	fileName = '%s.json' % timestamp 
+	fileName = '%s.json' % timestamp
+	
+	aDict = a.__dict__
+	aDict[publication] = aDict.pop('b_list')
+	
 	with io.open(fileName, 'w', encoding='utf-8') as f:
-		f.write(unicode(json.dumps(a.__dict__, default=encode_b,encoding="utf-8",ensure_ascii=False,indent=1)))
+		f.write(unicode(json.dumps(aDict, default=encode_b,encoding="utf-8",ensure_ascii=False,indent=1)))
+		#f.write(unicode(json.dumps(a.__dict__, default=encode_b,encoding="utf-8",ensure_ascii=False,indent=1)))
 
 #	print 'JSON: %s' % json.dumps(a.__dict__, default=encode_b,indent=1, ensure_ascii=False)
 

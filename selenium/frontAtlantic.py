@@ -105,7 +105,7 @@ class FrontAtlantic(unittest.TestCase):
         timeHelper.sortTimeForGuardian(articles)
         print "BEFORE Total articles: {} AFTER Total articles: {}".format(articleLen, len(articles))
 
-        jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),articles)
+        jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),articles,"atlantic")
 
         # for x in articles[:]:
         #     print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"

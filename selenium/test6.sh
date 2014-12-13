@@ -1,8 +1,8 @@
 #!/bin/bash
 
 BASE="/Users/pro001/Desktop/Dev/Learning/tests/scrapWeb/hello-world/selenium"
-HUB="javaTest"
-NODE="javaNodeTest"
+HUB="hub"
+NODE="node"
 SEL="pythonFront"
 
 INIT_HUB="sh $BASE/$HUB.sh start"
@@ -19,9 +19,9 @@ STOP_SEL="sh $BASE/$SEL.sh stop"
       #  exec 2>&1 $INIT_HUB 1>/tmp/$HUB.out &
 	# wait; exec 2>&1 $INIT_NODE 1>/tmp/$NODE.out &
 #	wait; exec 2>&1 $INIT_SEL 1>/tmp/$SEL.out ;;
-	$INIT_HUB &
+	$INIT_HUB
 	sleep 5  
-	$INIT_NODE &
+	$INIT_NODE
 	sleep 5 
 	$INIT_SEL
 	wait ;; 

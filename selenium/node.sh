@@ -22,8 +22,9 @@ function startprocedure {
 
 	pkill firefox-bin
 	kill `cat $PID_FILE` && rm -f $PID_FILE
-	echo $$ > $PID_FILE
-        exec 2>&1 $INIT_NODE 1>/tmp/$NAME.out
+        exec 2>&1 $INIT_NODE 1>/tmp/$NAME.out &
+        PID=$!
+        echo $PID > $PID_FILE
 }
 
 function stopprocedure {

@@ -12,8 +12,9 @@ INIT_HUB="java -jar $SEL_SERVER -role hub -hubConfig $CONFIG"
 
 function startprocedure {
       # echo $! > $PID_FILE;
-	echo $$ > $PID_FILE
-        exec 2>&1 $INIT_HUB 1>/tmp/$NAME.out 
+        exec 2>&1 $INIT_HUB 1>/tmp/$NAME.out &
+        PID=$!
+        echo $PID > $PID_FILE
 }
 
 function stopprocedure {
