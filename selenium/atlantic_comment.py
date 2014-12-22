@@ -11,10 +11,13 @@ import time
 from threading import Thread
 
 
-def findTopCommentAndTopNumber(self, url):
+def findTopCommentAndTopNumber(self, url,isFirstPage ,WAIT_SECONDS):
 
     print "pre 1"
     self.driver.get(url)
+    if isFirstPage == False:
+        time.sleep(WAIT_SECONDS)   
+
     print "pre 2"
     resultDict = {}
     ##CHANGE
@@ -55,12 +58,10 @@ def findTopCommentAndTopNumber(self, url):
         print "timeStamp: %s" % timeStamp
     except Exception as e:
         print "NoSuchElementException /TimeoutException //time[@itemprop='datePublished'] %s " % e
-        self.driver.switch_to.default_content();
         return resultDict
 
     if timeStamp is None or timeStamp < 1000:
         print "*****************ERROR Timestamp Error"
-        self.driver.switch_to.default_content();
         return resultDict
 
 ##.jump-to-comments>a
@@ -128,7 +129,7 @@ def findTopCommentAndTopNumber(self, url):
 
     ##a data-role="username"
     print "TIME SLEEP"
-    time.sleep(5)
+    time.sleep(3)
     ##.updatable.count
     topCommentNumber = 0
     try:

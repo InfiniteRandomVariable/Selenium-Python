@@ -40,6 +40,7 @@ class FrontAtlantic(unittest.TestCase):
         ##CHANGE
         ##NUM_COMMENTS_CRITERIA = 10
         NUM_COMMENTS_CRITERIA = 2
+        TIME_WAIT = 2
 
         #self.driver.implicitly_wait(100)
         self.driver.get(DOMAIN_URL)
@@ -68,10 +69,14 @@ class FrontAtlantic(unittest.TestCase):
 
 
         articleLen = len(articles)
-
+        isFirstPage = True
         for x in articles[:]:
 
-            topCommentDict = atlantic_comment.findTopCommentAndTopNumber(self, x.url).copy()
+
+            topCommentDict = atlantic_comment.findTopCommentAndTopNumber(self, x.url, isFirstPage,TIME_WAIT).copy()
+            isFirstPage = False
+
+
 
             if isinstance (topCommentDict,dict) == False or isinstance (topCommentDict,dict) and len(topCommentDict) == 0:
                 print "REMOVED TITLE %s" % x.title

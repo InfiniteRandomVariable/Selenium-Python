@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import common_classes, jsonHelper, timeHelper,re, techCrunchTime, wsj_time, time
+import common_classes, jsonHelper, timeHelper,re, wsj_time, time
 
 
 ##PROBLEM
@@ -23,8 +23,9 @@ divider = 1
 MAX_RANKING = 5
 MIN_COMMENT_NUM = 100/divider
 #MIN_COMMENT_NUM = 1/divider
-MAX_PAGE_VISIT = 3
+MAX_PAGE_VISIT = 5
 WORDS_LIMIT = 140
+WAIT_SECONDS = 3
 
 
 #first 5
@@ -65,8 +66,6 @@ try:
 
 
 	#print "0"
-
-	rowNum = 1
 	#print "SIZE %s" % totalClips
 
 	for row in rows[:]:
@@ -87,6 +86,7 @@ try:
 except Exception as e:
 	print "Exception: failure in WSJ \n%s" % e
 
+isFirstPage = True
 
 for article in pages[:]:
 
@@ -95,16 +95,21 @@ for article in pages[:]:
 	url = "%s%s" % (article.url, '#livefyre-comment')
 	
 	browser.get(url)
-	time.sleep(5)
-	numCommentsElm = WebDriverWait(browser, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, NUM_REVIEWS)))
+	if isFirstPage == False:
+		time.sleep(WAIT_SECONDS)
+	isFirstPage = False
 
-	numComments = numCommentsElm.text.strip()
 
-	article.numComments = int(re.search( r'(\d+)\s', numComments).group().strip())
-
-	if article.numComments < MIN_COMMENT_NUM:
+	try:
+		numComments = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, NUM_REVIEWS))).text.strip()
+		article.numComments = int(re.search( r'(\d+)\s', numComments).group().strip())
+		if article.numComments < MIN_COMMENT_NUM:
 		#print "CONTINUE: %s " % article.numComments
+			continue
+	except Exception as e:
 		continue
+
+
 
 	#"clickHandler: function (self, $el)"
           

@@ -36,8 +36,10 @@ class PythonOrgSearch(unittest.TestCase):
         TOP_COMMENT_STRING_LEN = 20
         TOP_COMMENT_NUM = 10
         DEFAULT_TIME = 1416691395
+        TIME_WAIT = 2
 
-        self.driver.implicitly_wait(1)
+
+        #self.driver.implicitly_wait(1)
         print "PID: %s" % self.driver.binary.process.pid
         self.driver.get(DOMAIN_URL)
 
@@ -117,10 +119,12 @@ class PythonOrgSearch(unittest.TestCase):
                 break
 
         articleLen = len(articles)
+        isFirstPage = True
 
         for x in articles[:]:
 
-            topCommentDict = guardian_comment.findTopCommentAndTopNumber(self, x.url).copy()
+            topCommentDict = guardian_comment.findTopCommentAndTopNumber(self, x.url,isFirstPage,TIME_WAIT ).copy()
+            isFirstPage = False
 
             if isinstance (topCommentDict,dict) == False or isinstance (topCommentDict,dict) and len(topCommentDict) == 0:
                 print "REMOVED TITLE {}".format(x.title.encode('utf-8'))

@@ -5,14 +5,18 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import guardian_time
+import guardian_time,time
 
 
 
-def findTopCommentAndTopNumber(self, url):
+
+def findTopCommentAndTopNumber(self, url, isFirstPage,WAIT_SECONDS):
 
     print "pre 1"
     self.driver.get(url)
+    if isFirstPage == False:
+        time.sleep(WAIT_SECONDS)   
+
     print "pre 2"
     resultDict = {}
 ##  print "about to start waiting"

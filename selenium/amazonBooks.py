@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import common_classes, jsonHelper, timeHelper,re, techCrunchTime
+import common_classes, jsonHelper, timeHelper,re, time, 
 
 
 ##PROBLEM
@@ -46,6 +46,7 @@ REVIEW_TITLE = '.a-size-base.a-text-bold'
 #Text first 150 words
 REVIEW_TEXT ='.MHRHead'
 TAG = 'ranking'
+WAIT_SECONDS = 2
 
 #http://techcrunch.com/2014/12/12/alienware-alpha-review-a-gaming-pc-in-a-tiny-package/#comments
 
@@ -87,11 +88,17 @@ except Exception as e:
 	print "Exception: failure in techcrunch0 \n%s" % e
 
 
+isFirstPage = True
+
 for book in books[:]:
 
 	try:
 		#print "6"
 		browser.get(book.tag)
+
+		if isFirstPage == False:
+			time.sleep(WAIT_SECONDS)
+		isFirstPage = False				
 		#print "7"
 		firstReview = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, REVIEWS)))
 

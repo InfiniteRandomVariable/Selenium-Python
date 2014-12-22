@@ -41,6 +41,7 @@ rowElements = []
 MIN_RANKING = 4
 MIN_COMMENT = 25
 COMMENT_NUM_CRITERIA = 200
+WAIT_SECONDS = 3
 
 popular = None
 
@@ -70,6 +71,8 @@ for row in rowElements[:]:
 	if len(a.url) > 2 and len(a.title) > 2:
 		rows.append(a)
 
+isFirstPage = True
+
 for index in range(len(rows)):
 
 	print "BEGINNING TO SEARCH"
@@ -82,6 +85,9 @@ for index in range(len(rows)):
 	# 	continue
 	a = rows[index]
 	browser.get(a.url)
+	if isFirstPage == False:
+		time.sleep(WAIT_SECONDS)
+	isFirstPage = False
 	
 
 	try:
@@ -112,12 +118,6 @@ for index in range(len(rows)):
     ##a data-role="username"
 
 
-
-
-
-	print "TIME SLEEP"
-
-	time.sleep(5)
 
 	topCommentNumber = 0
 

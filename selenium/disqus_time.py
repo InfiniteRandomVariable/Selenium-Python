@@ -2,8 +2,8 @@ import pytz, datetime
 import calendar
 import re
 
-def formatAtlanticString(timeStr):
-	##2014-11-25T15:00:00-05:00
+def formatDisqusString(timeStr):
+	#Disqus
 	##2014-12-18T13:10:25-05:00
 	return re.sub(r'[-|+]\d+:\d+\S$', "",timeStr)
 
@@ -15,7 +15,7 @@ def timeToTimeStamp(timeStr):
 	local = pytz.timezone ("US/Eastern")
 	##Python 2.7 Bug with %z. Fixed Python 3.x
 	##naive = datetime.datetime.strptime (timeStr, "%Y-%m-%dT%H:%M:%S%z")
-	formattedTimeStr = formatAtlanticString(timeStr)
+	formattedTimeStr = formatDisqusString(timeStr)
 	naive = datetime.datetime.strptime (formattedTimeStr, "%Y-%m-%dT%H:%M:%S")
 
 	local_dt = local.localize(naive, is_dst=None)
