@@ -37,7 +37,6 @@ def timeToTimeStamp(timeStr):
 		timeZONE = 'US/Pacific'
 
 
-	##GURDIAN TIME STAMP STRING
 	##Dec. 14, 2014 11:12 p.m. ET
 	
 	local = pytz.timezone (timeZONE)
