@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
-import guardian_comment, timeHelper, common_classes
+import guardian_comment, timeHelper, common_classes, jsonHelper, re
 from urlparse import urlparse
 
 
@@ -14,8 +14,8 @@ from urlparse import urlparse
 class PythonOrgSearch(unittest.TestCase):
 
     def setUp(self):
-        ##self.driver = webdriver.Firefox()
-        self.driver = webdriver.Remote(command_executor='http://127.0.0.1:4444/wd/hub', desired_capabilities=DesiredCapabilities.FIREFOX)
+        self.driver = webdriver.Firefox()
+        ##self.driver = webdriver.Remote(command_executor='http://127.0.0.1:4444/wd/hub', desired_capabilities=DesiredCapabilities.FIREFOX)
 
 
     def classifyTag(tag):
@@ -27,8 +27,8 @@ class PythonOrgSearch(unittest.TestCase):
 
     def test_search_in_python_org(self):
         
-        
-        DOMAIN_URL = "http://www.theguardian.com"
+        NAME = 'guardian'
+        DOMAIN_URL = "http://www.the%s.com/us" % NAME
         containers = None
         articles = []
         MAX_NUM_ARTICLES = 10
@@ -38,27 +38,37 @@ class PythonOrgSearch(unittest.TestCase):
         DEFAULT_TIME = 1416691395
         TIME_WAIT = 2
 
-
+        pages = []
         #self.driver.implicitly_wait(1)
         print "PID: %s" % self.driver.binary.process.pid
         self.driver.get(DOMAIN_URL)
+        headlines = []
+        rowElements = []
 
         try:
-
-            WebDriverWait(self.driver, 60).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".js-item__comment-count")))
-            containers = WebDriverWait(self.driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".fc-item__container")))
-
-        except TimeoutException:
-            print "WARNING: TimeoutException containers"
-            return
-        except NoSuchElementException:
-            print "WARNING: No NoSuchElementException containers"
-            return
+            ##WebDriverWait(self.driver, 60).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".js-item__comment-count")))
+            headlines = WebDriverWait(self.driver, 60).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.fc-item__container')))[0:12]
         except Exception as e:
-            print "WARNING: Expected containers: {}".format(e)
+            print "WARNING: Expected containers: %s" % e
             return
 
-        for index, container in enumerate(containers):
+        # for index, subject in enumerate(headlines[:]):
+        #     subject_url = subject.get_attribute('href')
+        #     if 'video' in subject_url:
+        #         print "Skip url: %s" % subject_url
+        #         continue
+        #     a = common_classes.Article(subject_url)
+        #     a.title = subject.find_element_by_xpath("span").text.strip()
+        #     a.tag = urlparse(subject_url).path.split('/')[1]
+        #     if len(a.title) > 2 and len(a.tag) > 2:
+        #         pages.append(a)
+
+        # isFirstPage = True
+        # for page in pages[:]:
+        #     guardian_comment.findTopCommentAndTopNumber(self, page,isFirstPage,TIME_WAIT ).copy()
+
+
+        for index, container in enumerate(headlines[:]):
 
             comment = None
             article = None
@@ -67,144 +77,81 @@ class PythonOrgSearch(unittest.TestCase):
             textTitle = None
 
             try:
+                commentNum = container.find_element_by_css_selector(".js-item__comment-count").text.strip()
+
+                numStr = re.sub(r'\D',"",commentNum)
+
+                print "numComment %s" % numStr
+                numComments = int(numStr)
+                if numComments < 50:
+                    print "Continue NumComments %s" % numComments
+                    continue
+                
                 article = container.find_element_by_css_selector(".fc-item__link")
-                title = container.find_element_by_css_selector(".u-faux-block-link__cta")
+                url = str(article.get_attribute('href')).strip()
+                print "URL %s" % url
+                if 'video' in url or 'live' in url:
+                    print "Skip url: %s" % url
+                    continue
+                a = common_classes.Article(url)
+                a.numComments = numComments
+
+                a.title = article.find_element_by_css_selector(".u-faux-block-link__cta").text.strip()
+                print "Title: %s" % a.title 
+                theTag = urlparse(url).path.split('/')[1]
+                print "Tag: %s" % theTag
+                #print "theTag: %s\nTitle: %s" % (theTag, a.title)
+                a.tag = theTag
+                
+                if len(a.title) > 2 and len(a.tag) > 1:
+                    pages.append(a)
+
             except Exception as e:
-                print "WARNING: NoSuchElementException article"
-                continue
-
-##.fc-item__link
-##.u-faux-block-link__cta
-
-            try:
-                comment = container.find_element_by_css_selector('.js-item__comment-count')
-            except:
-                print "WARNING: NoSuchElementException comment"
-                continue
-
-            href = article.get_attribute("href")
-            textTitle = title.text
-
-            tag = urlparse(href).path.split('/')[1]
+                print "WARNING: article %s currentNum %s" % (e, len(pages))
 
 
-            if isinstance(tag, basestring) == False or len(tag) < 2 or tag =='football'or tag == 'sport':
-                continue
-            ##WebDriverWait(self.driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".u-faux-block-link__overlay")))
-            if isinstance(textTitle,basestring) == False or len(textTitle) < 4:
-                print "CONTINUE INDEX {}".format(index)
-                continue
-
-            commentNumber = 0
-            try:
-                commentNumber = int(comment.text)
-            except ValueError:
-                continue
-            except Exception as e:
-                continue
-
-            
-
-            if commentNumber > COMMENT_NUM_CRITERIA:
-                art = common_classes.Article(href, textTitle, commentNumber)
-                _tag = classifyTag(tag)
-                art.tag = _tag
-                ##print art.title
-                ##print art.url
-                ##print art.numComments
-                ##print "#####################################################"
-                articles.append(art)
-
-            if len (articles) > MAX_NUM_ARTICLES:
-                break
-
-        articleLen = len(articles)
         isFirstPage = True
 
-        for x in articles[:]:
+        for page in pages[:]:
 
-            topCommentDict = guardian_comment.findTopCommentAndTopNumber(self, x.url,isFirstPage,TIME_WAIT ).copy()
+            thePage = guardian_comment.findTopCommentAndTopNumber(self, page ,isFirstPage,TIME_WAIT )
             isFirstPage = False
 
-            if isinstance (topCommentDict,dict) == False or isinstance (topCommentDict,dict) and len(topCommentDict) == 0:
-                print "REMOVED TITLE {}".format(x.title.encode('utf-8'))
-                articles.remove(x)
-                print ""
-                continue
+            if thePage.title and thePage.numComments and thePage.url and thePage.topComment and thePage.topCommentNum and thePage.age and thePage.tag:
+                rowElements.append(thePage)
 
-            for key, value in topCommentDict.iteritems():
-                print "Key NOV25 %s Value %s" % (key, value)
+            print "FINAL###########################################################"
+            print "title %s " % thePage.title
+            print "numComments %s " % thePage.numComments
+            print "url %s " % thePage.url 
+            print "topComment %s " % thePage.topComment
+            print "topCommentNum %s " % thePage.topCommentNum
+            print "age %s " % thePage.age
+            print "tag %s " % thePage.tag
+
+        print "final 0"
+        timeHelper.sortTimeForGuardian(rowElements)
+
+        print "final 1"
+        jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),rowElements,NAME)
+        print "final 2"
+        #self.driver.quit()
+
+
+            # for key, value in topCommentDict.iteritems():
+            #     print "Key NOV25 %s Value %s" % (key, value)
             
-                if 'topComment' == key and isinstance(value, basestring) and len(value) > TOP_COMMENT_STRING_LEN:
-                    x.topComment = value
-                elif 'topCommentNumber' == key and isinstance(value, int) and value > TOP_COMMENT_NUM:
-                    x.topCommentNum = value
-                elif 'timeStamp' == key and isinstance(value, int) and value > DEFAULT_TIME:
-                    x.age = value
-                else:
-                    print "REMOVED TITLE {}".format(x.title.encode('utf-8'))
-                    articles.remove(x)
-                    print ""
-                    break
-
-
-            # if topCommentDict is None or topCommentDict and len(topCommentDict) != 3:
-            #     print "REMOVED TITLE {}".format(x.title.encode('utf-8'))
-            #     articles.remove(x)
-            #     continue;
-            
-            ##qualifying the object attributes
-            # if isinstance(_comm, str) and len(_comm) > 5 and isinstance(_commNum, int) and _commNum > 1 and isinstance(_age, int) and _age > 1:
-            #     print "ADD TITLE: {} AGE: {%f} TOP COM NUMBER: {%f} \n COMMNET {}".format(x.title.encode('utf-8'), _age, _commNum, _comm.encode('utf-8'))
-            #     x.setTopComment(_comm)
-            #     x.setTopCommentNum(_commNum)
-            #     x.setAge(_age)
-            # else:
-            #     print "REMOVED TITLE {}".format(x.title.encode('utf-8'))
-            #     articles.remove(x)
-            #     continue
-
-  ##          print "################################"
-
-        timeHelper.sortTimeForGuardian(articles)
-        print "BEFORE Total articles: {} AFTER Total articles: {}".format(articleLen, len(articles))
-        for x in articles[:]:
-            print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-            print x.title
-            print x.numComments
-            print x.url
-            print x.topComment
-            print x.topCommentNum
-            print x.age
-            print x.tag
-            print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-
-            ##print "TITLE: {} COMMENT_NUMBER: {} LINK: {}".format(textTitle, commentNumber, href)
-            ##print "TITLE: {} COMMENT_NUMBER: {} LINK: {}".format(textTitle, commentNumber, href)
-            
-
-
-##23
-
-##container = response.selector.css('.fc-item__container').extract()
-
-##publication: done
-##age: depend on the position of the post/the time of the commment
-##link: done
-##title: done
-##number of comments: done
-##comment: visit the page
-##topComment: visit the page
-##type(low priority): depend on the link classification (regular expression)
-
-
-# for index, container in enumerate(containers):
-#     link = container.css('.u-faux-block-link__overlay::attr(href)').extract()[0]
-#     print link
-#     title = container.css('.u-faux-block-link__overlay::text').extract()[0]
-#     print title
-#     args = (index, ''.join(container.css('.js-item__comment-count::text').extract()).strip())
-#     print 'Article %d : CommentNumber: %s' % args        
+            #     if 'topComment' == key and isinstance(value, basestring) and len(value) > TOP_COMMENT_STRING_LEN:
+            #         x.topComment = value
+            #     elif 'topCommentNumber' == key and isinstance(value, int) and value > TOP_COMMENT_NUM:
+            #         x.topCommentNum = value
+            #     elif 'timeStamp' == key and isinstance(value, int) and value > DEFAULT_TIME:
+            #         x.age = value
+            #     else:
+            #         print "REMOVED TITLE {}".format(x.title.encode('utf-8'))
+            #         articles.remove(x)
+            #         print ""
+            #         break
 
 
     def tearDown(self):
