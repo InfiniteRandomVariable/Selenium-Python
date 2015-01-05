@@ -19,16 +19,22 @@ STOP_SEL="sh $BASE/$SEL.sh stop"
       #  exec 2>&1 $INIT_HUB 1>/tmp/$HUB.out &
 	# wait; exec 2>&1 $INIT_NODE 1>/tmp/$NODE.out &
 #	wait; exec 2>&1 $INIT_SEL 1>/tmp/$SEL.out ;;
-#echo 'command1 --foo=bar' | batch
-#echo 'command2' | batch
-#at -q b -l              # on many OSes, a slightly shorter synonym is: atq -q b
-	$INIT_HUB | batch &
-	$INIT_NODE | batch &
-	$INIT_SEL | batch & ;;
+	$INIT_HUB &
+	sleep 5  
+	$INIT_NODE &
+	sleep 5 
+	$INIT_SEL
+	wait ;; 
+	#$INIT_SEL ;;
      stop)
-        exec 2>&1 $STOP_HUB 1>>/tmp/$HUB.out &
-        wait; exec 2>&1 $STOP_NODE 1>>/tmp/$NODE.out &
-        wait; exec 2>&1 $STOP_SEL 1>>/tmp/$SEL.out & ;;
+#        exec 2>&1 $STOP_HUB 1>>/tmp/$HUB.out &
+#        wait; exec 2>&1 $STOP_NODE 1>>/tmp/$NODE.out &
+#        wait; exec 2>&1 $STOP_SEL 1>>/tmp/$SEL.out & ;;
+
+        $STOP_HUB 
+        $STOP_NODE
+        $STOP_SEL;;
+
      *)
         echo "usage: $NAME {start|stop}" ;;
  esac

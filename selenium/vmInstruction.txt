@@ -1,0 +1,48 @@
+UBUNTU DIST 14.0.. V
+
+#DIRECTORIES
+#HELPERS/ToolName
+#nameOFThePub/nameOfThePub
+
+# install java
+sudo apt-get install openjdk-7-jdk openjdk-7-jre
+
+#virtualbox host no internet connection
+http://askubuntu.com/questions/267846/virtualbox-in-ubuntu-host-no-internet-connection
+
+#install pip
+sudo apt-get install python-pip
+
+#install selenium
+pip install -U selenium
+
+#install git
+sudo apt-get install git
+
+#install pytz
+sudo pip install pytz
+
+#set home directory
+/home/kev/bincd binb/hello-world/selenium
+http://askubuntu.com/questions/60218/how-to-add-a-directory-to-my-path
+
+
+#EXECUTION FLOW
+#LEVEL 0 
+#crontab * * * * * command script
+#ideally, close the hub and node by reading the pid files and java process that match the selenium patterns and web browsers
+
+#LEVEL 1
+#in each script do these task
+######scrape 1pub, 2 pub, 3 pub, 4 pub
+		
+#LEVEL 2 e.g. 1pub
+#objective: scrape each publication
+#close the node, close the browser.
+#start the node, wait 3 seconds
+#start the scraping script
+#close the node, close the browser
+
+
+
+

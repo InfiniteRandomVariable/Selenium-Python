@@ -29,7 +29,7 @@ def findTopCommentAndTopNumber(self, url,isFirstPage ,WAIT_SECONDS):
 
     try:
         ##.welcome-lightbox-continue
-        elm = WebDriverWait(self.driver, 30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,".welcome-lightbox-continue")))
+        elm = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR,".welcome-lightbox-continue")))
         elm.click()
     except Exception:
         print "Exception fail to click .welcome-lightbox-continue"
@@ -190,6 +190,6 @@ def findTopCommentAndTopNumber(self, url,isFirstPage ,WAIT_SECONDS):
     ##itemprop="datePublished"
     ##.content__dateline>time                
 
-    print "DONE Top Comment: %s TopCommentNumber: %s Timestamp: %s CommentNum: %s Title: %s" % (topComment, topCommentNumber, timeStamp, comNum, title)
+    #print "DONE Top Comment: %s TopCommentNumber: %s Timestamp: %s CommentNum: %s Title: %s" % (topComment, topCommentNumber, timeStamp, comNum, title)
     resultDict = {'topComment':topComment, 'topCommentNumber':topCommentNumber,'timeStamp': timeStamp, 'numComments': comNum, 'title': title}
     return resultDict

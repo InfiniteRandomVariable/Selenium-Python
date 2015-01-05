@@ -53,18 +53,18 @@ class FrontAtlantic(unittest.TestCase):
             try:
                 elem = WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.XPATH,keyElement)))
                 hf = elem.get_attribute("href")
-                print 'HREF: %s' % hf
+               # print 'HREF: %s' % hf
                 if len(hf) > 8:
                     articles.append(common_classes.Article(hf))
 
             except TimeoutException:
-                print "WARNING: TimeoutException containers"
+               # print "WARNING: TimeoutException containers"
                 return
             except NoSuchElementException:
-                print "WARNING: No NoSuchElementException containers"
+               # print "WARNING: No NoSuchElementException containers"
                 return
             except Exception as e:
-                print "WARNING: Expected containers: {}".format(e)
+               # print "WARNING: Expected containers: {}".format(e)
                 return
 
 
@@ -73,23 +73,23 @@ class FrontAtlantic(unittest.TestCase):
         for x in articles[:]:
 
 
-            topCommentDict = atlantic_comment.findTopCommentAndTopNumber(self, x.url, isFirstPage,TIME_WAIT).copy()
+            topCommentDict = atlantic_comment.findTopCommentAndTopNumber(self, x.url, isFirstPage,TIME_WAIT)
             isFirstPage = False
 
 
 
             if isinstance (topCommentDict,dict) == False or isinstance (topCommentDict,dict) and len(topCommentDict) == 0:
-                print "REMOVED TITLE %s" % x.title
+                #print "REMOVED TITLE %s" % x.title
                 articles.remove(x)
                 print ""
                 continue
 
 
             x.tag = urlparse(x.url).path.split('/')[1]
-            print 'TAG: %s URL: %s' % (x.tag, x.url)
+           # print 'TAG: %s URL: %s' % (x.tag, x.url)
 
             for key, value in topCommentDict.iteritems():
-                print "Key NOV25 %s Value %s" % (key, value)
+               # print "Key NOV25 %s Value %s" % (key, value)
             
                 if 'topComment' == key and isinstance(value, basestring) and len(value) > TOP_COMMENT_STRING_LEN:
                     x.topComment = value
@@ -102,13 +102,13 @@ class FrontAtlantic(unittest.TestCase):
                 elif 'numComments' == key and isinstance(value, int) and value > NUM_COMMENTS_CRITERIA:
                     x.numComments = value                    
                 else:
-                    print "REMOVED TITLE %s " % x.title
+            #        print "REMOVED TITLE %s " % x.title
                     articles.remove(x)
                     print ""
                     break
 
         timeHelper.sortTimeForGuardian(articles)
-        print "BEFORE Total articles: {} AFTER Total articles: {}".format(articleLen, len(articles))
+        #print "BEFORE Total articles: {} AFTER Total articles: {}".format(articleLen, len(articles))
 
         jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),articles,"atlantic")
 
@@ -124,7 +124,7 @@ class FrontAtlantic(unittest.TestCase):
         #     print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
     def tearDown(self):
-        self.driver.close()
+        self.driver.quit()
 
 if __name__ == "__main__":
     unittest.main()
