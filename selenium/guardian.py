@@ -81,10 +81,10 @@ class PythonOrgSearch(unittest.TestCase):
 
                 numStr = re.sub(r'\D',"",commentNum)
 
-                print "numComment %s" % numStr
+                #print "numComment %s" % numStr
                 numComments = int(numStr)
                 if numComments < 50:
-                    print "Continue NumComments %s" % numComments
+                    #print "Continue NumComments %s" % numComments
                     continue
                 
                 article = container.find_element_by_css_selector(".fc-item__link")
@@ -97,10 +97,10 @@ class PythonOrgSearch(unittest.TestCase):
                 a.numComments = numComments
 
                 a.title = article.find_element_by_css_selector(".u-faux-block-link__cta").text.strip()
-                print "Title: %s" % a.title 
+                #print "Title: %s" % a.title 
                 theTag = urlparse(url).path.split('/')[1]
-                print "Tag: %s" % theTag
-                #print "theTag: %s\nTitle: %s" % (theTag, a.title)
+                #print "Tag: %s" % theTag
+                
                 a.tag = theTag
                 
                 if len(a.title) > 2 and len(a.tag) > 1:
@@ -120,14 +120,14 @@ class PythonOrgSearch(unittest.TestCase):
             if thePage.title and thePage.numComments and thePage.url and thePage.topComment and thePage.topCommentNum and thePage.age and thePage.tag:
                 rowElements.append(thePage)
 
-            print "FINAL###########################################################"
-            print "title %s " % thePage.title
-            print "numComments %s " % thePage.numComments
-            print "url %s " % thePage.url 
-            print "topComment %s " % thePage.topComment
-            print "topCommentNum %s " % thePage.topCommentNum
-            print "age %s " % thePage.age
-            print "tag %s " % thePage.tag
+            # print "FINAL###########################################################"
+            # print "title %s " % thePage.title
+            # print "numComments %s " % thePage.numComments
+            # print "url %s " % thePage.url 
+            # print "topComment %s " % thePage.topComment
+            # print "topCommentNum %s " % thePage.topCommentNum
+            # print "age %s " % thePage.age
+            # print "tag %s " % thePage.tag
 
         print "final 0"
         timeHelper.sortTimeForGuardian(rowElements)

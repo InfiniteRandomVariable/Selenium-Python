@@ -110,9 +110,9 @@ for row in rowElements[:]:
 	if mostStreamItem:
 		a.title = "Streaming Gainer and Rank: %s\n%s" % (a.age, title)
 	else:
-		a.title = "Rank: %s\n%s" % (a.age, title)
+		a.title = "Hot-100: %s\n%s" % (a.age, title)
 
-	a.tag = "HOT-100"
+	a.tag = "video"
 
 	print "SONG MESSAGE:\n%s\nArtist:%s" %(a.title, a.topComment)
 	articles.append(a)

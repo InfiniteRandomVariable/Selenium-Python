@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import guardian_time,time,re
+import guardian_time,time,re, articleUtil
 
 
 #TOP_COMMENT_NUM_XPATH = '//div[contains(concat(' ',normalize-space(@class),' '), "d-comment__inner d-comment__inner--top-level")]/div[2]/div[@data-recommend-count]/span[1]/span[1]'
@@ -14,6 +14,8 @@ TOP_COMMENT_NUM_XPATH = '//div[contains(concat(' ',normalize-space(@class),' '),
 TOP_COMMENT_CONTAINER_CSS = '.d-comment__inner.d-comment__inner--top-level .d-comment__content'
 TOP_COMMENT_CSS = '.d-comment__main .d-comment__body>p'
 TOP_COMMENT_NUM_CSS = '.d-comment__recommend-count--old'
+WORDS_LIMIT = 140
+
 #TOP_COMMENT_XPATH = '//div[contains(concat(' ',normalize-space(@class),' '), "d-comment__inner d-comment__inner--top-level")]/div/div[@data-recommend-count]/span/span'
 def findComment(self, currentTopCommentNum):
     #XPATH //div/@data-recommend-count
@@ -169,7 +171,7 @@ def findTopCommentAndTopNumber(self, page, isFirstPage,WAIT_SECONDS):
 
     try:
         print "currentTopComment 0"
-        pageLinks = WebDriverWait(self.driver, 30).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,'.pagination__list>a')))[0:2]
+        pageLinks = WebDriverWait(self.driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,'.pagination__list>a')))[0:2]
         print "currentTopComment 1"
         currentTopComment = ""
         currentTopCommentNum = 10
@@ -203,6 +205,10 @@ def findTopCommentAndTopNumber(self, page, isFirstPage,WAIT_SECONDS):
         
         page.topComment = commentAndCommentNum[0]
         page.topCommentNum = commentAndCommentNum[1]
+
+        page.topComment = articleUtil.truncatedStringForRow(page.topComment)
+        ##if len(page.topComment) > (WORDS_LIMIT -2):
+          ##  page.topComment = "%s..." % page.topComment.strip()[0:WORDS_LIMIT]
 
         print "currentTopCommentText %s" % page.topComment
         print "currentTopCommentNum %s" % page.topCommentNum

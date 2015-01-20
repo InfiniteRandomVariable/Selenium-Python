@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import common_classes, jsonHelper, timeHelper,re, techCrunchTime,time
+import common_classes, jsonHelper, timeHelper,re, techCrunchTime,time, articleUtil
 
 
 ##PROBLEM
@@ -99,8 +99,8 @@ for page in pages[:MAX_PAGE_VISIT]:
 
 		if commentLikeNum > MIN_LIKES:
 			#print "10.1"
-			page.topComment = post.find_element_by_css_selector(".postText").text.strip()
-
+			page.topComment = post.find_element_by_css_selector(".postText").text
+			page.topComment = articleUtil.truncatedStringForRow(page.topComment)
 			#print "11 comment: %s" % page.topComment
 			page.tag = TAG
 			page.topCommentNum = commentLikeNum

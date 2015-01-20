@@ -81,7 +81,7 @@ class FrontAtlantic(unittest.TestCase):
             if isinstance (topCommentDict,dict) == False or isinstance (topCommentDict,dict) and len(topCommentDict) == 0:
                 #print "REMOVED TITLE %s" % x.title
                 articles.remove(x)
-                print ""
+                #print ""
                 continue
 
 
@@ -104,7 +104,7 @@ class FrontAtlantic(unittest.TestCase):
                 else:
             #        print "REMOVED TITLE %s " % x.title
                     articles.remove(x)
-                    print ""
+                    #print ""
                     break
 
         timeHelper.sortTimeForGuardian(articles)

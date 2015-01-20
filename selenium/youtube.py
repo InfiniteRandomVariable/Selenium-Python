@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import common_classes, jsonHelper, timeHelper,re,time
+import common_classes, jsonHelper, timeHelper,re,time, articleUtil
 import pytz, datetime
 import calendar
 import re
@@ -63,10 +63,11 @@ try:
 		if len(a.url) > 5:
 			pages.append(a)
 
-		print "URL %s" % a.url
+		#print "URL %s" % a.url
 
 except Exception as e:
-	print "Exception: failure in bloomberg \n%s" % e
+	print(e)
+	#print "Exception: failure in bloomberg \n%s" % e
 
 isFirstPage = True
 for article in pages[:]:
@@ -80,31 +81,37 @@ for article in pages[:]:
 #article.tag = WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR,".blogName>a"))).text.strip()
 	
 	try:
-		article.title = WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.ID,'eow-title'))).text.strip()
+
+		article.title = WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.ID,'eow-title'))).text.decode('utf-8', errors='ignore').strip()
+		print(type(article.title)) 
 		timeText  = WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR,".watch-time-text"))).text
 		#article.age = int(theTimeStampText)/1000
 		article.age = timeToTimeStamp(timeText)/1000
 		if article.age == None or article.title == None or article.age < 10 or len(article.title) < 2:
-			print "timestamp length %s\n title:%s " % (article.age, article.title)
+			#print "timestamp length %s\n title:%s " % (article.age, article.title)
 			continue
-		print "timeStamp: %s" % article.age
+		#print "timeStamp: %s" % article.age
 	except Exception as e:
-		print "EXCEPTION Time %s " % e
+		print(e)
 		browser.switch_to.default_content()
 		continue
 
 	frame = WebDriverWait(browser,30).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.comments-iframe-container>div>iframe')))
+
 	browser.switch_to.frame(frame)
 	numCommentText = WebDriverWait(browser,30).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.DJa'))).text.strip()
 
 	article.numComments = int(re.sub(r'\D', "", numCommentText).strip())
-	print "commentNum: %s commentNumText: %s" % (numCommentText,article.numComments)
+	#print "commentNum: %s commentNumText: %s" % (numCommentText,article.numComments)
 	if article.numComments < MIN_COMMENT_NUM:
-		print "CONTINUE: comment number is too low"
+		#print "CONTINUE: comment number is too low"
 		browser.switch_to.default_content()
 		continue
 
-	article.topComment = WebDriverWait(browser,30).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.Ct'))).text.strip()[0:WORDS_LIMIT]
+	article.topComment = WebDriverWait(browser,30).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.Ct'))).text
+	article.topComment = articleUtil.truncatedStringForRow(article.topComment)
+
+	print(type(article.topComment))
 
 	article.topCommentNum = int(WebDriverWait(browser,30).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.uPc.bmd'))).text.strip())
 	browser.switch_to.default_content()
@@ -114,7 +121,7 @@ for article in pages[:]:
 	if len(article.title) > 2 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10 and article.topCommentNum > MIN_LIKES:
 		rowElements.append(article)
 	else:
-		print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s article.topCommentNum %s " %( article.title,article.topComment, article.url, article.age, article.topCommentNum)
+		#print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s article.topCommentNum %s " %( article.title,article.topComment, article.url, article.age, article.topCommentNum)
 		pass
 		
 jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),rowElements,NAME)

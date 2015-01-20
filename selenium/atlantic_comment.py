@@ -7,8 +7,9 @@ from selenium.webdriver.support import expected_conditions as EC # available sin
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
 import atlantic_time
 import re
-import time
+import time, articleUtil
 from threading import Thread
+
 
 
 def findTopCommentAndTopNumber(self, url,isFirstPage ,WAIT_SECONDS):
@@ -26,6 +27,7 @@ def findTopCommentAndTopNumber(self, url,isFirstPage ,WAIT_SECONDS):
     ##CHANGE
     ##COMMENT_NUM_CRITERIA = 65
     COMMENT_NUM_CRITERIA = 10
+    WORDS_LIMIT = 140
 
     try:
         ##.welcome-lightbox-continue
@@ -186,6 +188,12 @@ def findTopCommentAndTopNumber(self, url,isFirstPage ,WAIT_SECONDS):
         print "top comment"
         self.driver.switch_to.default_content();
         return resultDict
+
+    topComment = articleUtil.truncatedStringForRow(topComment);
+    # if len(topComment) > WORDS_LIMIT:
+    #     _topC = topComment[0:WORDS_LIMIT]
+    #     tpC = re.sub(r'\.*$',"",_topC)
+    #     topComment = "%s..." % tpC
 
     ##itemprop="datePublished"
     ##.content__dateline>time                

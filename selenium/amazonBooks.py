@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import common_classes, jsonHelper, timeHelper,re, time, 
+import common_classes, jsonHelper, timeHelper,re, time, articleUtil
 
 
 ##PROBLEM
@@ -47,6 +47,7 @@ REVIEW_TITLE = '.a-size-base.a-text-bold'
 REVIEW_TEXT ='.MHRHead'
 TAG = 'ranking'
 WAIT_SECONDS = 2
+#WORD_LIMIT = 160
 
 #http://techcrunch.com/2014/12/12/alienware-alpha-review-a-gaming-pc-in-a-tiny-package/#comments
 
@@ -77,7 +78,7 @@ try:
 		book.tag = numReviewElm.get_attribute('href').strip()
 
 		author = row.find_element_by_css_selector(AUTHOR).text.strip()
-		book.title = "HOT NEW RELEASE: %s %s" % (elm.text.strip(), author) 
+		book.title = "Book Release: %s %s" % (elm.text.strip(), author) 
 
 		print "TITLE %s" % book.title
 
@@ -138,21 +139,30 @@ for book in books[:]:
 
 		reviewText = ''
 		try:
-			reviewText = firstReview.find_element_by_css_selector('.reviewText').text[0:100]
+			reviewText = firstReview.find_element_by_css_selector('.reviewText').text
 		except Exception as e:
 			print "Exception2: %s" % e
 
-		dots = ''
-		if(len(reviewText) > 98):
-			dots = '...'
-		book.topComment = "%s<br/>%s%s" %(topComment, reviewText,dots)
+		##dots = ''
 
+		tComSize = len(topComment)
+		rTextSize = len(reviewText)
+		##if(len(reviewText) > 98):
+
+		if tComSize > 3 and rTextSize > 3:	
+			book.topComment = "%s - %s" %(topComment, reviewText)
+		elif tComSize > 3:
+			book.topComment = topComment
+		elif rTextSize > 3:
+			book.topComment = reviewText
+
+		book.topComment = articleUtil.truncatedStringForRow(book.topComment);
 
 		book.tag = TAG
 
 		book.age = 10000
 
-		if len(book.title) > 2 and len(book.topComment) > 2 and len(book.url) > len(BASE) and book.numComments > 30 and book.topCommentNum > 30 and book.age > 10:
+		if len(book.title) > 2 and len(book.topComment) > 3 and len(book.url) > len(BASE) and book.numComments > 30 and book.topCommentNum > 30 and book.age > 10:
 			rowElements.append(book)
 
 	except Exception, e:

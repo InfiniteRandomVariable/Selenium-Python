@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC # available sin
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
 import re
 import time
-import common_classes
+import common_classes, articleUtil
 from threading import Thread
 
 
@@ -15,7 +15,6 @@ from threading import Thread
 
 def findTopCommentAndTopNumber(browser, article, COMMENT_NUM_CRITERIA,VOTEUP_CRITERIA ):
     resultDict = {}
-    WORD_LIMITS = 150
     print "inside disqus"
     ##browser.switch_to.frame("dsq-2")
     try:
@@ -110,9 +109,8 @@ def findTopCommentAndTopNumber(browser, article, COMMENT_NUM_CRITERIA,VOTEUP_CRI
 
 
     try:
-        topComment = WebDriverWait(browser, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR,".post-message>p"))).text.strip()[0:WORD_LIMITS]
-        if len(topComment) > (WORD_LIMITS -1):
-            topComment = "%s..." % topComment
+        topComment = WebDriverWait(browser, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR,".post-message>p"))).text
+        topComment = articleUtil.truncatedStringForRow(topComment);
 #        for elm in elms[:]:
  #           topComment = topComment + ' ' + elm.text
 
@@ -132,7 +130,7 @@ def findTopCommentAndTopNumber(browser, article, COMMENT_NUM_CRITERIA,VOTEUP_CRI
     ##itemprop="datePublished"
     ##.content__dateline>time                
 
-    print "DONE Top Comment: %s TopCommentNumber: %s commentNum: %s" % (topComment, topCommentNumber, comNum)
+    #print "DONE Top Comment: %s TopCommentNumber: %s commentNum: %s" % (topComment, topCommentNumber, comNum)
     article.topComment = topComment
     article.topCommentNum = topCommentNumber
     article.numComments = comNum

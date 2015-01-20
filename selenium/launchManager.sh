@@ -9,16 +9,17 @@ CONFIG="$BASE/hello-world/selenium/hubConfig.json"
 LOG_FILE="/tmp/$NAME.log"
 #PID_FILE="/var/run/$NAME.pid"
 #PYTHON="/Users/pro001/Desktop/Dev/Learning/tests/scrapWeb/hello-world/selenium/frontAtlantic.py"
-PYTHON="$BASE/hello-world/selenium/frontAtlantic.py"
+SEL=$2
+PYTHON="$BASE/hello-world/selenium/$SEL.py"
 TIMEOUT=600
 
-#INIT_HUB="python $PYTHON"
-INIT_HUB=`python ${PYTHON} &`
+INIT_HUB="python $PYTHON"
+#INIT_HUB=`python3 ${PYTHON} &`
 
 function startprocedure {
 	pkill firefox-bin
-        kill `cat $PID_FILE`
-        rm -f $PID_FILE
+    kill `cat $PID_FILE`
+    rm -f $PID_FILE
 	echo $$ > $PID_FILE
         #exec 2>&1 $INIT_HUB 1>/tmp/$NAME.out
 	#$INIT_HUB 2>&1

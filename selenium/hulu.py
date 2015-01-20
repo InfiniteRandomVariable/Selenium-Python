@@ -49,7 +49,7 @@ try:
 		duration = clip.find_element_by_css_selector(".duration").text.strip()
 
 		a.topComment = '%s%s' % (source , duration)
-		a.tag = 'entertainment'
+		a.tag = 'video'
 		a.age = 0
 		a.topCommentNum = counter
 		counter = counter - 1

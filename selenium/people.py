@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import common_classes, jsonHelper, timeHelper, time, re
+import common_classes, jsonHelper, timeHelper, time, re, articleUtil
 
 
 #find chart highlights
@@ -182,6 +182,8 @@ for index in range(len(rows)):
 		continue
 
 	topComment = re.sub(r'\\', "",topComment.strip())
+
+	topComment = articleUtil.truncatedStringForRow(topComment)
 
 	if len (topComment) > 10:
 		print "top comment"

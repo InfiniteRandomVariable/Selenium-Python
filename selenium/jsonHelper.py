@@ -1,5 +1,6 @@
-import json,io,random, common_classes
+import json, io, os, random, common_classes, errno, s3Interface
 from json import dumps
+
 #from collections import OrderedDict
 
 class A(object):
@@ -22,20 +23,34 @@ def encode_b(obj):
 
 #json.dumps(a, default=encode_b)
 def writeToFile(timestamp,listObjects,publication):
+
 	if isinstance(listObjects,list) == False:
 		raise Exception("Should be an article list")
 	if isinstance(timestamp, int) == False:
 		raise Exception("Should be a timestamp")
 
+	if not os.path.isdir("%s" % publication) :
+		try:
+			os.makedirs(publication)
+		except:
+			if e.errno != errno.EEXIST:
+				raise e
+			pass
+
 	a = A()
 	a.b_list = listObjects
-	fileName = '%s.json' % timestamp
+	dataFileName = '%s.json' % timestamp
+	fileName = os.path.join(publication,dataFileName)
 	
 	aDict = a.__dict__
 	aDict[publication] = aDict.pop('b_list')
 	
 	with io.open(fileName, 'w', encoding='utf-8') as f:
 		f.write(unicode(json.dumps(aDict, default=encode_b,encoding="utf-8",ensure_ascii=False,indent=1)))
+	#	f.write(unicode(json.dumps(aDict, default=encode_b,encoding="utf-8",ensure_ascii=False,indent=1)))
+
+	s3Interface.sendData(fileName)
+
 		#f.write(unicode(json.dumps(a.__dict__, default=encode_b,encoding="utf-8",ensure_ascii=False,indent=1)))
 
 #	print 'JSON: %s' % json.dumps(a.__dict__, default=encode_b,indent=1, ensure_ascii=False)

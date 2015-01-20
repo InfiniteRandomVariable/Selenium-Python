@@ -9,10 +9,13 @@ def TIME_UTC_LINUX():
 	return calendar.timegm(d.utctimetuple())
 
 def TIME_UTC_LINUX_DIVIDER(timeDivider=1):
+	# TIME_UTC_LINUX()/timeDivider
 	return TIME_UTC_LINUX()/timeDivider
 
 def APP_TIMESTAMP():
-	return TIME_UTC_LINUX_DIVIDER(1000)
+	#Make timestamp in VIEW JAVASCRIPT
+	#console.log(parseInt(Math.floor(d1.getTime()/ 1000)/(60*30), 10)); //30 minutes per unit
+	return TIME_UTC_LINUX_DIVIDER(60*30)
 
 #if __name__ == "__main__":
 #	print 'TIME: %s' % APP_TIMESTAMP()

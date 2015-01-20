@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import common_classes, jsonHelper, timeHelper,re, wsj_time, time
+import common_classes, jsonHelper, timeHelper,re, wsj_time, time, articleUtil
 
 
 ##PROBLEM
@@ -112,14 +112,22 @@ for article in pages[:]:
 
 
 	#"clickHandler: function (self, $el)"
-          
-	timeStr = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, TIME_STAMP))).text.strip()
+    
+	try:  
+		timeStr = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, TIME_STAMP))).text.strip()
 
-	article.age = wsj_time.timeToTimeStamp(timeStr)
-	
-	article.topComment = WebDriverWait(browser, 200).until(EC.presence_of_element_located((By.CSS_SELECTOR, REVIEW))).text.strip()[0:WORDS_LIMIT]
-	if len (article.topComment) > (WORDS_LIMIT -1):
-		article.topComment = "%s..." % article.topComment
+		article.age = wsj_time.timeToTimeStamp(timeStr)
+		
+		article.topComment = WebDriverWait(browser, 200).until(EC.presence_of_element_located((By.CSS_SELECTOR, REVIEW))).text.strip()[0:WORDS_LIMIT]
+
+	except Exception as e:
+		print "Exception %s" % e
+		continue
+
+
+	article.topComment = articleUtil.truncatedStringForRow(article.topComment)
+	# if len (article.topComment) > (WORDS_LIMIT -1):
+	# 	article.topComment = "%s..." % article.topComment
 
 	article.topCommentNum = 0
 	article.tag = TAG

@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import common_classes, jsonHelper, timeHelper,re, nydailynews_time, time
+import common_classes, jsonHelper, timeHelper,re, nydailynews_time, time, articleUtil
 
 
 ##PROBLEM
@@ -123,10 +123,10 @@ for article in pages[:]:
 	timeStr = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, TIME_STAMP))).get_attribute('content').strip()
 
 	article.age = nydailynews_time.timeToTimeStamp(timeStr)
-	
-	article.topComment = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, REVIEW))).text.strip()[0:WORDS_LIMIT]
-	if len (article.topComment) > (WORDS_LIMIT -1):
-		article.topComment = "%s..." % article.topComment
+	article.topComment = articleUtil.truncatedStringForRow(article.topComment)
+	#article.topComment = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, REVIEW))).text.strip()[0:WORDS_LIMIT]
+	#if len (article.topComment) > (WORDS_LIMIT -1):
+	#	article.topComment = "%s..." % article.topComment
 
 	firstURL = re.sub(r'/+[^\/]+$',"", article.url)
 	finalReg = r'^%s/' % WEBSITE_URL

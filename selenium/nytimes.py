@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import common_classes, jsonHelper, timeHelper,re,time
+import common_classes, jsonHelper, timeHelper,re,time, articleUtil
 import pytz, datetime
 import calendar
 import re
@@ -43,7 +43,7 @@ WEBSITE_URL = '%s' % BASE
 browser.get('https://myaccount.nytimes.com/auth/login?URI=http://www.nytimes.com/most-popular')
 
 rowElements = []
-divider = 3
+divider = 4
 MIN_LIKES = 30/divider
 MIN_COMMENT_NUM = 100/divider
 MAX_PAGE_VISIT = 3
@@ -143,32 +143,42 @@ for article in pages[:]:
 		print "Exception commentButton: %s" % e
 		continue
 
-	numCommentText = commentButton.find_element_by_css_selector('.count').text.strip()
-	print "numComments: %s" % numCommentText
 	try:
+		numCommentText = commentButton.find_element_by_css_selector('.count').text.strip()
+		print "numComments: %s" % numCommentText
 		article.numComments = int(numCommentText)
+		commentButton.click()
 	except Exception as e:
 	 	article.numComments = 1
 	 	print "Exception numComments: %s" % e
+	 	continue
 
-	commentButton.click()
-
+	
 
 	time.sleep(WAIT_SECONDS)
-	WebDriverWait(browser, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'.tab.reader'))).click()
-	time.sleep(WAIT_SECONDS*2)
-	article.topComment = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.comment-text'))).text.strip()[0:WORDS_LIMIT]
-	if len(article.topComment) > (WORDS_LIMIT -2):
-		article.topComment = "%s..." % article.topComment
-	print "topComment %s" % article.topComment
-	article.topCommentNum = int(WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.recommend-count'))).text.strip())
-	print "topCommentNum %s" % article.topCommentNum
-	timeText = str(WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.dateline'))).get_attribute('datetime'))
-	print "timeText %s" % timeText
 
-	article.age = int(timeToTimeStamp(timeText))/1000
-	print "article.age %s" % article.age	
+	try:
+		WebDriverWait(browser, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'.tab.reader'))).click()
+		time.sleep(WAIT_SECONDS*2)
+		article.topComment = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.comments-view.tab-content .comment-text'))).text
+		article.topComment = articleUtil.truncatedStringForRow(article.topComment)
+		# if len(article.topComment) > (WORDS_LIMIT -2):
+		# 	tpC = re.sub(r'\.*$',"",article.topComment)
+		# 	article.topComment = "%s..." % tpC
 
+		print "topComment %s" % article.topComment
+		article.topCommentNum = int(WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.recommend-count'))).text.strip())
+		print "topCommentNum %s" % article.topCommentNum
+		timeText = str(WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.dateline'))).get_attribute('datetime'))
+		print "timeText %s" % timeText
+
+		article.age = int(timeToTimeStamp(timeText))/1000
+		print "article.age %s" % article.age	
+
+	except Exception as e:
+		print "Exception: %s" % e
+		continue
+	
 #article.tag = WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR,".blogName>a"))).text.strip()
 
 	if len(article.title) > 2 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10 and article.topCommentNum > MIN_LIKES:

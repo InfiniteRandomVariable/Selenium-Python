@@ -26,7 +26,23 @@ sudo pip install pytz
 /home/kev/bincd binb/hello-world/selenium
 http://askubuntu.com/questions/60218/how-to-add-a-directory-to-my-path
 
+#INSTALL BOTO
+https://github.com/boto/boto3
 
+
+#INSTALL PYTHON3
+
+
+#CHECKING and to be commented
+application/octet-stream
+
+#DOWNLOAD AWS CLI to config credential
+http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-set-up.html
+
+#Config the key and secret with AWS CLI
+
+
+##########################################################################################
 #EXECUTION FLOW
 #LEVEL 0 
 #crontab * * * * * command script
