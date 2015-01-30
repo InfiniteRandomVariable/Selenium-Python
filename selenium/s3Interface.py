@@ -1,7 +1,9 @@
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
-import os, re
+import os, re, jsonHelper
 
+
+#ABS_PATH = '~/Desktop/Dev/Learning/tests/scrapWeb/hello-world/selenium'
 CRED = '.s3'
 ACCESS = 'accesskey'
 SECRET = 'secret'
@@ -13,12 +15,14 @@ def readCred():
 		#print "please provide the credential file name"
 		return 
 	counter = 0
+	cred_path = jsonHelper.getCompleteFilePath(CRED)
 	dictCred = { ACCESS: '' , SECRET: '' }
-	with open(CRED) as f:
+	with open(cred_path) as f:
 		content = f.read().splitlines()
 		dictCred[ACCESS] = content[counter]
 		counter = counter + 1
 		dictCred[SECRET] = content[counter]
+		print content
 		return dictCred
 
 #NOTE: the S3 path will be lower case where local file name maybe upper case
@@ -26,7 +30,7 @@ def readCred():
 #			  localPath, consist of this pattern publicationName/timestamp.json
 #			
 
-def sendData( localPath, buckName=None, forwardWrite=6):
+def sendData( localPath, buckName=None, forwardWrite=24):
 
 	#print "localPath 1 %s" % localPath
 
@@ -51,13 +55,30 @@ def sendData( localPath, buckName=None, forwardWrite=6):
 			#print "Error: bucket cannot be nil"
 			return
 
-		strippedPath = re.sub(r'\.json$',"",localPath.lower())
-		timeStampStr = re.search( r'\d+$', strippedPath).group()
-		
-		timestamp = int(timeStampStr)	
-		
-		publicationName = re.search( r'^\w+', strippedPath).group()
+		systemPath = jsonHelper.getCompleteFilePath().lower().split('/')
+		localPathArray = localPath.lower().split('/')
+		print("systemPath: {0}, localPath: {1}".format(systemPath, localPathArray))
 
+		for pathIndex in range(len(systemPath)):
+			pathStr = systemPath[pathIndex]
+			if pathStr.find(localPathArray[pathIndex]) < 0:
+				print("NOT MATCH Path name s3Interface: {0}".format(localPathArray[pathIndex]))
+				return
+
+
+		#re.sub(r'\.json$',"",localPath.lower())
+		#strippedPath = re.sub(r'\.json$',"",localPath.lower())
+		timeName = localPathArray[len(localPathArray)-1]
+		strippedPath = re.sub(r'\.json$',"",timeName.lower())
+		timeStampStr = re.search( r'\d+$', strippedPath).group()
+				
+		timestamp = int(timeStampStr)	
+
+		print 'strippedPath ' + strippedPath
+		#publicationName = re.search( r'^\w+', strippedPath).group()
+
+		publicationName = localPathArray[len(localPathArray)-2]
+		print('publicationName {0}'.format(publicationName))
 		if timestamp < 100 and len(publicationName) < 1:
 			#print "error in publication name or time stamp"
 			return

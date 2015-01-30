@@ -22,8 +22,10 @@ def encode_b(obj):
 
 
 #json.dumps(a, default=encode_b)
-def writeToFile(timestamp,listObjects,publication):
+def writeToFile(timestamp,listObjects,publication,min_articles=2):
 
+	if len(listObjects) < min_articles:
+		return
 	if isinstance(listObjects,list) == False:
 		raise Exception("Should be an article list")
 	if isinstance(timestamp, int) == False:
@@ -40,8 +42,10 @@ def writeToFile(timestamp,listObjects,publication):
 	a = A()
 	a.b_list = listObjects
 	dataFileName = '%s.json' % timestamp
-	fileName = os.path.join(publication,dataFileName)
 	
+	#fileName = os.path.join(publication,dataFileName)
+	
+	fileName = getCompleteFilePath(publication,dataFileName)
 	aDict = a.__dict__
 	aDict[publication] = aDict.pop('b_list')
 	
@@ -50,6 +54,10 @@ def writeToFile(timestamp,listObjects,publication):
 	#	f.write(unicode(json.dumps(aDict, default=encode_b,encoding="utf-8",ensure_ascii=False,indent=1)))
 
 	s3Interface.sendData(fileName)
+
+def getCompleteFilePath(*arg):
+	return os.path.join(os.path.expanduser('~'), 'Desktop/Dev/Learning/tests/scrapWeb/hello-world/selenium', *arg)
+	
 
 		#f.write(unicode(json.dumps(a.__dict__, default=encode_b,encoding="utf-8",ensure_ascii=False,indent=1)))
 

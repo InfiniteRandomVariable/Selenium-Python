@@ -22,6 +22,7 @@ rowElements = []
 divider = 1
 MIN_LIKES = 10/divider
 MIN_COMMENT_NUM = 15/divider
+MIN_ARTICLES = 1
 #MIN_COMMENT_NUM = 1/divider
 MAX_PAGE_VISIT = 3
 WORDS_LIMIT = 140
@@ -123,8 +124,8 @@ for article in pages[:]:
 	timeStr = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, TIME_STAMP))).get_attribute('content').strip()
 
 	article.age = nydailynews_time.timeToTimeStamp(timeStr)
+	article.topComment = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, REVIEW))).text
 	article.topComment = articleUtil.truncatedStringForRow(article.topComment)
-	#article.topComment = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, REVIEW))).text.strip()[0:WORDS_LIMIT]
 	#if len (article.topComment) > (WORDS_LIMIT -1):
 	#	article.topComment = "%s..." % article.topComment
 
@@ -140,5 +141,5 @@ for article in pages[:]:
 		print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s " %( article.title,article.topComment, article.url, article.age)
 		pass
 		
-jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),rowElements,"nydailynews")
+jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),rowElements,"nydailynews",MIN_ARTICLES)
 browser.quit()

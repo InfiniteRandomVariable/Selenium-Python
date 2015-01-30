@@ -86,7 +86,7 @@ for article in pages[:]:
 		print(type(article.title)) 
 		timeText  = WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR,".watch-time-text"))).text
 		#article.age = int(theTimeStampText)/1000
-		article.age = timeToTimeStamp(timeText)/1000
+		article.age = timeToTimeStamp(timeText)
 		if article.age == None or article.title == None or article.age < 10 or len(article.title) < 2:
 			#print "timestamp length %s\n title:%s " % (article.age, article.title)
 			continue

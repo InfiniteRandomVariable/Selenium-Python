@@ -8,14 +8,24 @@ def formatString(timeStr):
 	regex_hour_selector = r'\s(\d+):'
 	searchObj = re.search( regex_hour_selector, timeStr).group()
 	hours = int(re.sub(r':$',"",searchObj.strip()))
-	
-	PMorAM = re.search('p\.?m\.?|a\.?M\.?', timeStr, re.IGNORECASE).group().strip()
-	#remove the am or pm from the str
-	if 'p' in PMorAM or 'P' in PMorAM:
-		#add 12 hours
-		hours = hours + 12
-	elif hours < 10 :
-		hours = "0%s" % hours
+	PMorAM = ''
+
+
+
+	try:
+
+		PMorAM = re.search('p\.?m\.?|a\.?M\.?', timeStr, re.IGNORECASE).group().strip()
+		#remove the am or pm from the str
+		if 'p' in PMorAM or 'P' in PMorAM:
+			#add 12 hours
+			hours = hours + 12
+		elif hours < 10:
+			hours = "0%s" % hours
+	except Exception as e:
+		pass	
+
+	if hours > 23:
+		hours = '00'	
 	
 	hoursString = " %s:" % hours
 		

@@ -17,12 +17,20 @@ import sys
 
 
 def timeToTimeStamp(timeStr):
-	
+	##2015-01-23T10:30:58+00:00
 	timeZONE = 'US/Eastern'
-
+	##naive = datetime.datetime.strptime (formattedTimeStr, "%Y-%m-%dT%H:%M")
+	SAMPLE_FROM_PUB = "2014-12-22"
 	##2014-12-22
 	local = pytz.timezone (timeZONE)
-	naive = datetime.datetime.strptime (timeStr, "%Y-%m-%d")
+	timeFormat = ""
+
+	if len(timeStr) > len(SAMPLE_FROM_PUB):
+		timeFormat = "%Y-%m-%dT%H:%M:%S"
+	else:
+		timeFormat = "%Y-%m-%d"
+
+	naive = datetime.datetime.strptime (timeStr,timeFormat)
 	local_dt = local.localize(naive, is_dst=None)
 	utc_dt = local_dt.astimezone (pytz.utc)
 	timeStamp = calendar.timegm(utc_dt.utctimetuple())
@@ -54,6 +62,7 @@ WAIT_SECONDS = 3
 POPULARS = '//ol/li/a'
 SEARCH_START = 10
 SEARCH_END = 18
+
 
 
 
@@ -119,13 +128,17 @@ try:
 
 		urlWithoutArticleLink = re.sub(r'\/?[\=\?\w\.\-]+$',"",a.url)
 		print "URL: %s" % a.url
-		a.tag = re.search(r'[\w]+$', urlWithoutArticleLink).group()
-		print "TAG: %s" % a.tag
+		try:
+			a.tag = re.search(r'[\w]+$', urlWithoutArticleLink).group()
+			print "TAG: %s" % a.tag
+		except Exception as ee:
+			a.tag = NAME
+
 		pages.append(a)
 	
 
 except Exception as e:
-	print "LOGIN Exception: %s" % e
+	print "PopularPage %s" % e
 
 #https://myaccount.nytimes.com/auth/login?URI=http://www.nytimes.com/most-popular
 
@@ -138,7 +151,7 @@ for article in pages[:]:
 		time.sleep(WAIT_SECONDS)
 	isFirstPage = False
 	try:
-		commentButton = WebDriverWait(browser, 60).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'button.button.comments-button.theme-kicker')))
+		commentButton = WebDriverWait(browser, 30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'button.button.comments-button.theme-kicker')))
 	except Exception as e:
 		print "Exception commentButton: %s" % e
 		continue
@@ -169,10 +182,13 @@ for article in pages[:]:
 		print "topComment %s" % article.topComment
 		article.topCommentNum = int(WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.recommend-count'))).text.strip())
 		print "topCommentNum %s" % article.topCommentNum
-		timeText = str(WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.dateline'))).get_attribute('datetime'))
-		print "timeText %s" % timeText
+		timeText = str(WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.dateline'))).get_attribute('datetime')).strip()
+		print "timeText1 %s" % timeText
+		timeText = re.search(r'^[^+]+',timeText).group()
+		print "timeText2 %s" % timeText
 
-		article.age = int(timeToTimeStamp(timeText))/1000
+		##article.age = int(timeToTimeStamp(timeText))/1000
+		article.age = int(timeToTimeStamp(timeText)) - len(rowElements)
 		print "article.age %s" % article.age	
 
 	except Exception as e:
@@ -186,6 +202,9 @@ for article in pages[:]:
 	else:
 		print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s article.topCommentNum %s " %( article.title,article.topComment, article.url, article.age, article.topCommentNum)
 		pass
-		
+
+
 jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),rowElements,NAME)
 browser.quit()
+
+

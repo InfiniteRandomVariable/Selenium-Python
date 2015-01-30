@@ -38,22 +38,43 @@ browser.get('http://www.people.com/people/news/')
 rowElements = []
 
 # allow top 5 items to be in the listing
+divider = 2
 MIN_RANKING = 4
-MIN_COMMENT = 25
-COMMENT_NUM_CRITERIA = 200
+MIN_COMMENT = 20/divider
+COMMENT_NUM_CRITERIA = 100/divider
 WAIT_SECONDS = 3
 
 popular = None
 
+findTopStoryOnly = False
+
+articles = []
+rows = []
+
+
 try:
-	popular = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.ID,"most-shared")))
+	topStory = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.XPATH,"//div[@id = 'top-story']//a[@title][@href]")))
+	a = common_classes.Article(topStory.get_attribute("href"))
+	a.title = topStory.get_attribute("title")
+	if len(a.url) > 2 and len(a.title) > 2:
+		rows.append(a)
+		findTopStoryOnly = True
+except Exception as e :
+	print "Exception: top story %s" % e
+	
+
+
+try:
+	if findTopStoryOnly == False:
+		popular = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.ID,"most-shared")))
 except Exception:
 	print "Exception: most shared"
 	browser.quit()
 	sys.exit()
 
 try:
-	rowElements = popular.find_elements_by_css_selector('.text>h4>a')[:4]
+	if findTopStoryOnly == False:
+		rowElements = popular.find_elements_by_css_selector('.text>h4>a')[:3]
 	#rowElements = WebDriverWait(browser, 20).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,".text>h4>a")))[:5]
 except Exception as e:
 	print "Exception: failure in ROW ELEMENTS"
@@ -61,15 +82,13 @@ except Exception as e:
 	sys.exit()
 	
 
-articles = []
-rows = []
+if findTopStoryOnly == False:
+	for row in rowElements[:]:
+		a = common_classes.Article(row.get_attribute("href"))
+		a.title = row.text.strip()
+		if len(a.url) > 2 and len(a.title) > 2:
+			rows.append(a)
 
-for row in rowElements[:]:
-	
-	a = common_classes.Article(row.get_attribute("href"))
-	a.title = row.text.strip()
-	if len(a.url) > 2 and len(a.title) > 2:
-		rows.append(a)
 
 isFirstPage = True
 
@@ -197,6 +216,6 @@ for index in range(len(rows)):
 	articles.append(a)
 	#browser.switch_to.default_content();
 
-jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),articles,"people")
+jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),articles,"people", 1)
 browser.quit()
 

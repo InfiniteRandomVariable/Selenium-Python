@@ -67,26 +67,28 @@ try:
 	
 		
 		##URL and TITLE
+		try:
+			elm = WebDriverWait(row, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR,BOOK_DETAILS )))
 
-		elm = WebDriverWait(row, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR,BOOK_DETAILS )))
+			bookURL = elm.get_attribute('href')
+			book = common_classes.Article(bookURL)
 
-		bookURL = elm.get_attribute('href')
-		book = common_classes.Article(bookURL)
+			numReviewElm = WebDriverWait(row, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR,NUM_REVIEW )))
+			book.numComments = int(numReviewElm.text.strip())
+			book.tag = numReviewElm.get_attribute('href').strip()
 
-		numReviewElm = WebDriverWait(row, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR,NUM_REVIEW )))
-		book.numComments = int(numReviewElm.text.strip())
-		book.tag = numReviewElm.get_attribute('href').strip()
+			author = row.find_element_by_css_selector(AUTHOR).text.strip()
+			book.title = "Book Release: %s %s" % (elm.text.strip(), author) 
 
-		author = row.find_element_by_css_selector(AUTHOR).text.strip()
-		book.title = "Book Release: %s %s" % (elm.text.strip(), author) 
+			print "TITLE %s" % book.title
 
-		print "TITLE %s" % book.title
-
-		rowNum = rowNum + 1
-		books.append(book)	
+			rowNum = rowNum + 1
+			books.append(book)
+		except Exception as theE:
+			print "Exception: failure in amz0 %s" % theE
 
 except Exception as e:
-	print "Exception: failure in techcrunch0 \n%s" % e
+	print "Exception: failure in amz1 %s" % e
 
 
 isFirstPage = True
@@ -105,27 +107,21 @@ for book in books[:]:
 
 	#text and extract the number by regex
 	#eg. str ='1,229 of 1,267 people found the following review helpful by minus'
-	#strList = str.split()
-	#likeStr = strList[0]
-	#totalStr = strList[2]
-	#likesAndreplacedNonNumeric = re.sub(r'[^0-9]*', "", likeStr)
-	#totalLikesAndreplacedNonNumeric = re.sub(r'[^0-9]*', "", totalStr)
-	#convert to number
-	# likeNum = int(likesAndreplacedNonNumeric)*2 + int(totalLikesAndreplacedNonNumeric)
 
-		try:
-			reviewRating = firstReview.find_element_by_xpath('div[1]').text.strip().split()
-			if len(reviewRating) > 2:
-				likeStr = reviewRating[0]
-				totalStr = reviewRating[2]
-				likesAndreplacedNonNumeric = re.sub(r'[^0-9]*', "", likeStr)
-				totalLikesAndreplacedNonNumeric = re.sub(r'[^0-9]*', "", totalStr)
-				book.topCommentNum = int(likesAndreplacedNonNumeric)*2 - int(totalLikesAndreplacedNonNumeric)
-			else:
-				print "ERROR in converting topcommentnum"
-				continue
-		except Exception as e:
-			print "Exception0: %s" % e
+		# try:
+		# 	reviewRating = firstReview.find_element_by_xpath('div[1]').text.strip().split()
+		# 	if len(reviewRating) > 2:
+		# 		likeStr = reviewRating[0]
+		# 		totalStr = reviewRating[2]
+		# 		likesAndreplacedNonNumeric = re.sub(r'[^0-9]*', "", likeStr)
+		# 		totalLikesAndreplacedNonNumeric = re.sub(r'[^0-9]*', "", totalStr)
+		# 		book.topCommentNum = int(likesAndreplacedNonNumeric)*2 - int(totalLikesAndreplacedNonNumeric)
+		# 	else:
+		# 		print "ERROR in converting topcommentnum"
+		# 		continue
+		# except Exception as e:
+		# 	print "Exception0: %s" % e
+		book.topCommentNum = 0
 
 		topComment = ''
 		try:
@@ -162,7 +158,7 @@ for book in books[:]:
 
 		book.age = 10000
 
-		if len(book.title) > 2 and len(book.topComment) > 3 and len(book.url) > len(BASE) and book.numComments > 30 and book.topCommentNum > 30 and book.age > 10:
+		if len(book.title) > 2 and len(book.topComment) > 3 and len(book.url) > len(BASE) and book.numComments > 30 and book.age > 10:
 			rowElements.append(book)
 
 	except Exception, e:
@@ -170,6 +166,6 @@ for book in books[:]:
 
 
 			
-jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),rowElements,"amazonbooks")
+jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),rowElements,"amzbooks", 1)
 browser.quit()
 

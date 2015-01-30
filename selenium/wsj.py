@@ -19,9 +19,9 @@ WEBSITE_URL = '%s/home-page' % BASE
 browser.get(WEBSITE_URL)
 
 rowElements = []
-divider = 1
+divider = 10
 MAX_RANKING = 5
-MIN_COMMENT_NUM = 100/divider
+MIN_COMMENT_NUM = 50/divider
 #MIN_COMMENT_NUM = 1/divider
 MAX_PAGE_VISIT = 5
 WORDS_LIMIT = 140
@@ -48,6 +48,7 @@ REVIEWS1 = 'a.fyre-stream-sort-top-comments'
 #REVIEWS1 = '.fyre-stream-sort-top-comments'
 REVIEWS_XPATH1 = '//div[@id="livefyre-comment"]/div/div/div[7]/div[2]/div[1]/a[3]'
 REVIEW = '.fyre-comment>p'
+REVIEW_Level1 = '.fyre-comment>p>p'
 #REVIEW_X = './/div[@id="livefyre-comment"]/div/div/div[8]/div[1]/article[2]/div[1]/section/div/p'
 
 #Dec. 14, 2014 11:12 p.m. ET
@@ -84,7 +85,7 @@ try:
 		pages.append(a)	
 
 except Exception as e:
-	print "Exception: failure in WSJ \n%s" % e
+	print "Exception: failure in WSJ1 \n%s" % e
 
 isFirstPage = True
 
@@ -103,25 +104,38 @@ for article in pages[:]:
 	try:
 		numComments = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, NUM_REVIEWS))).text.strip()
 		article.numComments = int(re.search( r'(\d+)\s', numComments).group().strip())
+		print "numComments %s " % article.numComments
+		
 		if article.numComments < MIN_COMMENT_NUM:
-		#print "CONTINUE: %s " % article.numComments
+			print "CONTINUE: %s " % article.numComments
 			continue
 	except Exception as e:
+		print('Exception WSJ2 {0}'.format(e))
 		continue
 
 
 
 	#"clickHandler: function (self, $el)"
-    
+	comment = ''
 	try:  
 		timeStr = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, TIME_STAMP))).text.strip()
 
+		print 'timeStr %s' % timeStr
+
 		article.age = wsj_time.timeToTimeStamp(timeStr)
-		
-		article.topComment = WebDriverWait(browser, 200).until(EC.presence_of_element_located((By.CSS_SELECTOR, REVIEW))).text.strip()[0:WORDS_LIMIT]
+
+		print 'article.age %s ' % article.age
+
+		article.topComment = WebDriverWait(browser, 200).until(EC.presence_of_element_located((By.CSS_SELECTOR, REVIEW))).text
+
+		print 'article.topComment %s ' % article.topComment
+
+		if len(article.topComment) < 1:
+			article.topComment = WebDriverWait(browser, 200).until(EC.presence_of_element_located((By.CSS_SELECTOR, REVIEW_Level1))).text
+		##print('TopComment: {0}'.format(article.topComment))
 
 	except Exception as e:
-		print "Exception %s" % e
+		print "Exception WSJ3 %s" % e
 		continue
 
 
@@ -134,10 +148,11 @@ for article in pages[:]:
 
 
 	if len(article.title) > 2 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10:
+		print('added: {0}'.format(article.title))
 		rowElements.append(article)
 	else:
-		#print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s " %( article.title,article.topComment, article.url, article.age)
+		print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s " %( article.title,article.topComment, article.url, article.age)
 		pass
 		
-jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),rowElements,"wsj")
+jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),rowElements,"wsj",1)
 browser.quit()

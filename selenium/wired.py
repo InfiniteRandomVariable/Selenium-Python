@@ -54,7 +54,7 @@ for article in pages[:]:
 		time.sleep(WAIT_SECONDS)
 	isFirstPage = False
 
-	article.tag = WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR,".blogName>a"))).text.strip()
+	article.tag = WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR,".blogName>a"))).text.strip().lower() 
 	
 	try:
 		_time = WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.XPATH,"//time")))

@@ -59,13 +59,13 @@ class FrontAtlantic(unittest.TestCase):
 
             except TimeoutException:
                # print "WARNING: TimeoutException containers"
-                return
+                continue
             except NoSuchElementException:
                # print "WARNING: No NoSuchElementException containers"
-                return
+                continue
             except Exception as e:
                # print "WARNING: Expected containers: {}".format(e)
-                return
+                continue
 
 
         articleLen = len(articles)

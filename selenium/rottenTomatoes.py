@@ -10,6 +10,7 @@ import common_classes, jsonHelper, timeHelper,re
 browser = webdriver.Firefox()
 
 NAME='rottentomatoes'
+SHORT_NAME = 'rtomatoes'
 WEBSITE_URL ='http://www.%s.com' % NAME
 
 browser.get(WEBSITE_URL)
@@ -55,6 +56,7 @@ try:
 				score = re.sub(r'%$', "",scoreText.text.strip())
 				intScore = int(score)
 			except Exception as e:
+				print("Exception: {0}".format(e))
 				continue
 
 			
@@ -66,7 +68,7 @@ try:
 				title = titleElm.text.strip()
 				url = titleElm.get_attribute("href")
 
-				#print "4 title: %s url: %s" % (title, url)
+				print "4 title: %s url: %s" % (title, url)
 				if len(title) > 0 and len (url) > 2:
 
 					a = common_classes.Article(url)
@@ -80,7 +82,7 @@ try:
 					a.tag = 'ranking'
 					a.age = 0
 					a.topCommentNum = intScore
-					#print "RESULT title:%s\n topComment:%s tag:%s topCommentNum:%s" % (a.title, a.topComment, a.tag, a.topCommentNum)
+					print "RESULT title:%s\n topComment:%s tag:%s topCommentNum:%s" % (a.title, a.topComment, a.tag, a.topCommentNum)
 					rowElements.append(a)
 
 
@@ -89,7 +91,7 @@ except Exception as e:
 
 
 timeStamp = timeHelper.APP_TIMESTAMP()
-jsonHelper.writeToFile(timeStamp,rowElements,NAME)
+jsonHelper.writeToFile(timeStamp,rowElements,SHORT_NAME)
 browser.quit()
 
 

@@ -17,14 +17,15 @@ BASE="/Users/pro001/Desktop/Dev/Learning/tests/scrapWeb/hello-world/selenium"
 HUB="javaTest"
 NODE="javaNodeTest"
 SEL=$2
+LAUNCHER=launchManager
 
 INIT_HUB="sh $BASE/$HUB.sh $START"
 INIT_NODE="sh $BASE/$NODE.sh $START"
-INIT_SEL="sh $BASE/launchManager.sh $START $SEL"
+INIT_SEL="sh $BASE/$LAUNCHER.sh $START $SEL"
 
 STOP_HUB="sh $BASE/$HUB.sh $STOP"
 STOP_NODE="sh $BASE/$NODE.sh $STOP"
-STOP_SEL="sh $BASE/$SEL.sh $STOP"
+STOP_SEL="sh $BASE/$LAUNCHER.sh $STOP"
 
 
 #PYTHON="python"
