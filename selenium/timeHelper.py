@@ -1,7 +1,11 @@
 from datetime import datetime
 import calendar
 
+##use by Atlantic and Guardian To
 def sortTimeForGuardian(timeList):
+	return timeList.sort(key=lambda x: x.age, reverse=True)
+
+def sortTimeForAtlantic(timeList):
 	return timeList.sort(key=lambda x: x.age, reverse=True)
 
 def TIME_UTC_LINUX():

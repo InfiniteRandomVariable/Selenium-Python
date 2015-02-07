@@ -2,6 +2,8 @@ echo "#############################Atlantic about to begin the processes #######
 #echo "process $$"
 BASE_COMMAND="/Users/pro001/Desktop/dev/Learning/tests/scrapWeb/hello-world/selenium/test2.sh"
 
+##http://www.politico.com/
+
 sh $BASE_COMMAND start atlantic
 echo "############################TechCrunch START NEXT PROCESS 1##############################"
 sh $BASE_COMMAND start techCrunch

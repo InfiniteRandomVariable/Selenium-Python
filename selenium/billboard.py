@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import common_classes, jsonHelper, timeHelper
+import common_classes, jsonHelper, timeHelper, imageUtil
 
 
 #find chart highlights
@@ -91,6 +91,8 @@ for row in rowElements[:]:
 
 	try:
 		row.find_element_by_css_selector('.fa.fa-star')
+
+		#.info-module-section-image.row-image
 		mostStreamItem = True
 	except Exception:
 		print "Fail to meet condition\nAGE:%s" % a.age
@@ -105,6 +107,16 @@ for row in rowElements[:]:
 	title = row.find_element_by_css_selector('.row-title>h2').text.strip()
 	#artist name
 	a.topComment = row.find_element_by_css_selector('.row-title>h3>a').text.strip()
+
+	imageElm = row.find_element_by_css_selector('.row-image')
+	if imageElm:
+		isSuccess = imageUtil.imageProcedure(browser, title , cssXpaths=[common_classes.CSSXPATH(".row-image", "style", "css")] , webElement=imageElm)
+		a.img = imageUtil.imageTitlePathJPG(title)
+
+		if not isSuccess or len(a.img) > 2:
+			continue
+	else:
+		continue
 
 
 	if mostStreamItem:

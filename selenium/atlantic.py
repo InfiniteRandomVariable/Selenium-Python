@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC # available sin
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import atlantic_comment, timeHelper, common_classes
 from urlparse import urlparse
-import json, jsonHelper
+import json, jsonHelper, imageUtil
 
 
 
@@ -83,6 +83,16 @@ class FrontAtlantic(unittest.TestCase):
                 articles.remove(x)
                 #print ""
                 continue
+#cssXpaths=[common_classes.CSSXPATH(".row-image", "style", "css")] , webElement=imageElm)
+            isSuccess = imageUtil.imageProcedure(self.driver, topCommentDict['title'], cssXpaths=[common_classes.CSSXPATH(".photo>img", "src", "css")])
+
+            if not isSuccess:
+                print("Error in atlantic imageUtil imageProcedure")
+                continue
+
+            #isSuccess = guardian_comment.findImage(self , thePage.title)
+            isFirstPage = False
+            x.img = imageUtil.imageTitlePathJPG(topCommentDict['title'])
 
 
             x.tag = urlparse(x.url).path.split('/')[1]
@@ -100,14 +110,17 @@ class FrontAtlantic(unittest.TestCase):
                 elif 'title' == key and isinstance(value, basestring) and len(value) > TITLE_CRITERIA:
                     x.title = value
                 elif 'numComments' == key and isinstance(value, int) and value > NUM_COMMENTS_CRITERIA:
-                    x.numComments = value                    
+                    x.numComments = value
+                elif len(x.img) < 2:
+                    articles.remove(x)
+                    break                    
                 else:
             #        print "REMOVED TITLE %s " % x.title
                     articles.remove(x)
                     #print ""
                     break
 
-        timeHelper.sortTimeForGuardian(articles)
+        timeHelper.sortTimeForAtlantic(articles)
         #print "BEFORE Total articles: {} AFTER Total articles: {}".format(articleLen, len(articles))
 
         jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),articles,"atlantic")

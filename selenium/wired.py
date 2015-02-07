@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import common_classes, jsonHelper, timeHelper,re,time, disqus, disqus_time
+import common_classes, jsonHelper, timeHelper,re,time, disqus, disqus_time, imageUtil
 
 
 ##PROBLEM
@@ -19,12 +19,12 @@ WEBSITE_URL = '%s' % BASE
 browser.get(WEBSITE_URL)
 
 rowElements = []
-divider = 1
+divider = 3
 MIN_LIKES = 10/divider
 MIN_COMMENT_NUM = 15/divider
 MAX_PAGE_VISIT = 3
 WORDS_LIMIT = 140
-MAX_RANKING=3
+MAX_RANKING=5
 WAIT_SECONDS = 3
 
 POPULARS = '.row1 .headline>h2 .module-homepage'
@@ -58,6 +58,16 @@ for article in pages[:]:
 	
 	try:
 		_time = WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.XPATH,"//time")))
+
+		isSuccess = imageUtil.imageProcedure(browser, article.title, cssXpaths=[common_classes.CSSXPATH("img.size-660-single-full", "src", "css"), common_classes.CSSXPATH("img.size-full", "src", "css")])
+		if not isSuccess:
+			print('Error: fail to find image from Wired.com: {0}'.format(article.title))
+			continue
+		article.img = imageUtil.imageTitlePathJPG(a.title)
+
+		if not len(article.img) > 1:
+			continue
+
 		article.age = disqus_time.timeToTimeStamp(_time.get_attribute("datetime"))
 		print "timeStamp: %s" % article.age
 	except Exception as e:
@@ -73,6 +83,6 @@ for article in pages[:]:
 	else:
 		print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s " %( article.title,article.topComment, article.url, article.age)
 		pass
-		
+
 jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),rowElements,"wired")
 browser.quit()

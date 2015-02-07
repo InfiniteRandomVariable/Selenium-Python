@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import common_classes, jsonHelper, timeHelper,re, wsj_time, time, articleUtil
+import common_classes, jsonHelper, timeHelper,re, wsj_time, time, articleUtil, imageUtil
 
 
 ##PROBLEM
@@ -25,7 +25,7 @@ MIN_COMMENT_NUM = 50/divider
 #MIN_COMMENT_NUM = 1/divider
 MAX_PAGE_VISIT = 5
 WORDS_LIMIT = 140
-WAIT_SECONDS = 3
+WAIT_SECONDS = 5
 
 
 #first 5
@@ -56,9 +56,7 @@ TIME_STAMP ='.timestamp'
 
 
 TAG = 'popular'
-
-#http://techcrunch.com/2014/12/12/alienware-alpha-review-a-gaming-pc-in-a-tiny-package/#comments
-
+##locate the image from the home page. and download the mobile app and locate the mobile oriented image.
 
 pages=[]
 try:
@@ -96,9 +94,9 @@ for article in pages[:]:
 	url = "%s%s" % (article.url, '#livefyre-comment')
 	
 	browser.get(url)
-	if isFirstPage == False:
-		time.sleep(WAIT_SECONDS)
-	isFirstPage = False
+	#if isFirstPage == False:
+	time.sleep(WAIT_SECONDS * 2)
+	#isFirstPage = False
 
 
 	try:
@@ -117,21 +115,59 @@ for article in pages[:]:
 
 	#"clickHandler: function (self, $el)"
 	comment = ''
+
 	try:  
 		timeStr = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, TIME_STAMP))).text.strip()
 
 		print 'timeStr %s' % timeStr
 
+		WebDriverWait(browser, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'.fyre-stream-sort-newest.fyre-stream-sort-selected'))).click()
+		time.sleep(WAIT_SECONDS)
+		WebDriverWait(browser, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'.fyre-stream-sort-top-comments'))).click()
+		time.sleep(WAIT_SECONDS)
 		article.age = wsj_time.timeToTimeStamp(timeStr)
 
 		print 'article.age %s ' % article.age
 
-		article.topComment = WebDriverWait(browser, 200).until(EC.presence_of_element_located((By.CSS_SELECTOR, REVIEW))).text
+		try:
+			container = WebDriverWait(browser, 250).until(EC.presence_of_element_located((By.CSS_SELECTOR, REVIEW)))
 
-		print 'article.topComment %s ' % article.topComment
+			if container:
+				print("container")
+				htmlElm = container.get_attribute('innerHTML')
+				#print("container: {0}".format(htmlElm))
+				article.topComment = container.text
 
-		if len(article.topComment) < 1:
-			article.topComment = WebDriverWait(browser, 200).until(EC.presence_of_element_located((By.CSS_SELECTOR, REVIEW_Level1))).text
+			if not htmlElm:
+				container = WebDriverWait(browser, 250).until(EC.presence_of_element_located((By.CSS_SELECTOR, REVIEW)))
+				print("container1 ")
+				htmlElm = container.get_attribute('innerHTML')
+				#print("container1: {0}".format(htmlElm))
+				article.topComment = container.text
+
+			print 'article.topComment %s ' % article.topComment
+
+		except Exception as eeee:
+			print "Exception WSJ3.01 %s" % eeee
+
+		if len(article.topComment) < 1 and container:
+			try:
+				print 'article.topComment 1 {0} {1}'.format(article.topComment, article.title)
+				newReview = '{0}{1}'.format(REVIEW, 'p')
+				elem  = container.find_element_by_css_selector('p')
+				print 'article.topComment 1 {0} {1}'.format(article.topComment, article.title)
+			except Exception as ee:
+				print "Exception WSJ3.1 %s" % ee
+
+			# if len(article.topComment) < 1:
+			# 	try:
+			# 		print 'article.topComment 2 %s ' % article.topComment
+			# 		newReview = '{0}{1}'.format(newReview, '>p')
+			# 		article.topComment = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, newReview))).text
+			# 		print 'article.topComment 2 %s ' % article.topComment
+			# 	except Exception as eee:
+			# 		print "Exception WSJ3.2 %s" % eee
+
 		##print('TopComment: {0}'.format(article.topComment))
 
 	except Exception as e:
@@ -146,8 +182,13 @@ for article in pages[:]:
 	article.topCommentNum = 0
 	article.tag = TAG
 
+	print("about to call getImageAndSave")
+	isSuccess = imageUtil.imageProcedure(browser, article.title, [common_classes.CSSXPATH(".vidThumb", "style", "css"), common_classes.CSSXPATH(".image-container img", "src", "css"), common_classes.CSSXPATH(".wsj-slideshow-image", "data-in-large-data-lazy", "css")])
+	print("return from getImageAndSave")        
+	article.img = imageUtil.imageTitlePathJPG(article.title)	
 
-	if len(article.title) > 2 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10:
+
+	if isSuccess and len(article.img) > 1 and len(article.title) > 2 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10:
 		print('added: {0}'.format(article.title))
 		rowElements.append(article)
 	else:

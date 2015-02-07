@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import common_classes, jsonHelper, timeHelper,re,time, articleUtil
+import common_classes, jsonHelper, timeHelper,re,time, articleUtil, imageUtil
 import pytz, datetime
 import calendar
 import re
@@ -12,10 +12,12 @@ import randomTime
 import sys
 
 
+
+
 ##PROBLEM
 ## only can find the first 4 items. Maybe memory problem?
-
-
+##http://static01.nyt.com/images/2015/02/01/world/JUSTICE/JUSTICE-facebookJumbo.jpg
+##http://static01.nyt.com/images/2015/02/01/world/JUSTICE/JUSTICE-master675.jpg
 def timeToTimeStamp(timeStr):
 	##2015-01-23T10:30:58+00:00
 	timeZONE = 'US/Eastern'
@@ -195,9 +197,14 @@ for article in pages[:]:
 		print "Exception: %s" % e
 		continue
 	
-#article.tag = WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR,".blogName>a"))).text.strip()
+	#article.tag = WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR,".blogName>a"))).text.strip()
 
-	if len(article.title) > 2 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10 and article.topCommentNum > MIN_LIKES:
+	print("about to call getImageAndSave")
+	isSuccess = imageUtil.imageProcedure(browser, article.title, [common_classes.CSSXPATH(".image img", "src", "css"), common_classes.CSSXPATH("img.media-viewer-candidate", "src", "css")])
+	print("return from getImageAndSave")        
+	article.img = imageUtil.imageTitlePathJPG(article.title)
+
+	if isSuccess and len(article.img) > 1 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10 and article.topCommentNum > MIN_LIKES:
 		rowElements.append(article)
 	else:
 		print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s article.topCommentNum %s " %( article.title,article.topComment, article.url, article.age, article.topCommentNum)

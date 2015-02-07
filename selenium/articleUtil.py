@@ -7,3 +7,4 @@ def truncatedStringForRow(text, WORD_LIMIT=250):
 		return "%s..." % re.sub(r'\.+$',"", text.strip()[0:WORD_LIMIT])
 	else:
 		return text
+

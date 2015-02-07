@@ -190,6 +190,12 @@ def findTopCommentAndTopNumber(self, url,isFirstPage ,WAIT_SECONDS):
         return resultDict
 
     topComment = articleUtil.truncatedStringForRow(topComment);
+    
+    self.driver.switch_to.default_content();
+
+    ##.photo>img
+    ##<img height="458" width="570" itemprop="image" style="width: 100% !important;height:auto !important" src="//cdn.theatlantic.com/static/newsroom/img/mt/2015/02/HillaryBaby/lead.jpg?njdcj8"/>
+
     # if len(topComment) > WORDS_LIMIT:
     #     _topC = topComment[0:WORDS_LIMIT]
     #     tpC = re.sub(r'\.*$',"",_topC)

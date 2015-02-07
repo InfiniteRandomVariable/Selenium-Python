@@ -10,6 +10,9 @@ import common_classes, jsonHelper, timeHelper,re, techCrunchTime,time, articleUt
 ##PROBLEM
 ## only can find the first 4 items. Maybe memory problem?
 
+##grab the links
+
+
 browser = webdriver.Firefox()
 NAME = "techcrunch"
 BASE= 'http://%s.com' % NAME

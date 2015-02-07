@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import guardian_time,time,re, articleUtil
+import guardian_time,time,re, articleUtil, imageUtil
 
 
 #TOP_COMMENT_NUM_XPATH = '//div[contains(concat(' ',normalize-space(@class),' '), "d-comment__inner d-comment__inner--top-level")]/div[2]/div[@data-recommend-count]/span[1]/span[1]'
@@ -17,6 +17,48 @@ TOP_COMMENT_NUM_CSS = '.d-comment__recommend-count--old'
 WORDS_LIMIT = 140
 
 #TOP_COMMENT_XPATH = '//div[contains(concat(' ',normalize-space(@class),' '), "d-comment__inner d-comment__inner--top-level")]/div/div[@data-recommend-count]/span/span'
+
+def findImage(self, articleTitle):
+
+    #video[0] get attribute('poster')
+    imageURL = ""
+
+    try:
+
+        elememt = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR,"video")))
+        imageURL = elememt.get_attribute("poster")
+
+    except Exception as e:
+        pass
+
+    if len(imageURL) == 0:
+
+        try:                
+            elememt = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR,"img.maxed.responsive-img")))
+            imageURL = elememt.get_attribute("src")
+        except Exception as e:
+            return False      
+
+    if len(imageURL) == 0:
+        return False
+
+    print("about to call getImageAndSave")
+    isSuccess = imageUtil.getImageAndSave(imageURL, articleTitle)
+    print("return from getImageAndSave")
+    return isSuccess
+
+    ##http://www.theguardian.com/film/2015/jan/31/fifty-shades-of-grey-film-sex-sam-taylor-johnson#comments
+    ##.responsive-img
+##http://i.guim.co.uk/static/w-620/h--/q-95/sys-images/Guardian/Pix/pictures/2015/2/1/1422790921359/Protesters-carrying-yello-008.jpg
+##http://i.guim.co.uk/static/w-460/h--/q-95/sys-images/Guardian/Pix/pictures/2015/2/1/1422790917867/Protesters-carrying-yello-005.jpg
+
+##http://i.guim.co.uk/static/w-460/h--/q-95/sys-images/Guardian/Pix/pictures/2015/1/23/1422034733796/blackpool-011.jpg
+##http://i.guim.co.uk/static/w-620/h--/q-95/sys-images/Guardian/Pix/pictures/2015/1/23/1422034735071/blackpool-012.jpg
+
+##http://i.guim.co.uk/static/w-620/h--/q-95/sys-images/Guardian/Pix/pictures/2015/2/1/1422789420200/The-new-Greek-finance-min-008.jpg
+##http://i.guim.co.uk/static/w-460/h--/q-95/sys-images/Guardian/Pix/pictures/2015/2/1/1422789416699/The-new-Greek-finance-min-005.jpg
+
+
 def findComment(self, currentTopCommentNum):
     #XPATH //div/@data-recommend-count
     # //div[@data-recommend-count]
@@ -70,29 +112,10 @@ def findComment(self, currentTopCommentNum):
         return
 
 
-
-
-    # print "find Comment 6 finalIndex: %s oldNum %s newNum %s " % (currentIndex, oldNum, currentTopCommentNum)
-
-    # if oldNum == currentTopCommentNum: return
-
-    # print "find Comment 6.1 finalIndex: %s oldNum %s newNum %s " % (currentIndex, oldNum, currentTopCommentNum)
-
     ##Todo: use XPATH to reduce to one seek only and obtain the number of the row from the css index above
     # comElm = self.driver.find_elements_by_css_selector(TOP_COMMENT_CSS)[currentIndex]
     # if not comElm: return
 
-    # textElm = comElm.find_element_by_xpath('p')
-    # if not textElm: return
-
-    # commentText = textElm.text.strip()
-    # print "find Comment 7"
-    # if commentText and len(commentText)> 1:
-    #     print "find Comment 8"
-    #     print "CommentText: %s CommentNum: %s" % (commentText, currentTopCommentNum)
-    #     return [commentText, currentTopCommentNum]
-
-    # print "find Comment 9"
 
 
 
@@ -181,7 +204,7 @@ def findTopCommentAndTopNumber(self, page, isFirstPage,WAIT_SECONDS):
             if not link: continue
 
             pageLinkURL = link.get_attribute('href')
-            if 'new' in pageLinkURL:
+            if 'new' in pageLinkURL and not 'newest' in pageLinkURL:
                 print "ERROR URL: shouldn't contain new %s" % pageLinkURL
                 continue
     
@@ -216,77 +239,3 @@ def findTopCommentAndTopNumber(self, page, isFirstPage,WAIT_SECONDS):
     except Exception as e:
         print "Unexpected .button.button--small.button--tertiary.pagination__action.js-discussion-change-page %s" % e
     return page
-
-
-
-
-    # seen = set()
-
-    # for index, link in enumerate(pageLinks):
-
-    #     print 'BEFORE COMMENT PAGE: {}'.format(index)
-        
-    #     sublink = None
-    #     try:
-    #         sublink = self.driver.find_elements_by_css_selector('.button.button--small.button--tertiary.pagination__action.js-discussion-change-page')[index] 
-    #     except Exception as e:
-    #         print "Unexpected exceptions {}".format(e)
-    #         continue
-
-
-    #     """Capture the first comment here"""     
-    #     href = sublink.get_attribute('href')
-    #     oldComments = None
-
-    #     if href not in seen:
-    #         try:
-    #             oldComments = WebDriverWait(self.driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".d-comment__inner.d-comment__inner--top-level")))
-    #         except Exception as e:
-    #             print "Unexpected exceptions {}".format(e)
-    #             continue
-
-    #         seen.add(href)
-    #         sublink.click()
-    #         print "HREF: {}".format(href)
-        
-    #         isOldCommentGone = False
-    #         for cnt, oldComment in enumerate(oldComments):
-    #             if isOldCommentGone:
-    #                 break
-    #             try:
-    #                 WebDriverWait(self.driver, 3).until(EC.staleness_of(oldComment))
-    #                 isOldCommentGone = True
-    #                 print 'PAGE {} OLD COMMENTS {}'.format(index, cnt)
-    #             except TimeoutException:
-    #                 print "TimeoutException Old Comments"
-    #             except Exception as e:
-    #                 print "Unexpected d-comment__inner.d-comment__inner--top-level: {}".format(e)
-
-    #         try:
-    #             num = 0
-    #             newComments = WebDriverWait(self.driver, 10).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".d-comment__inner.d-comment__inner--top-level")))
-    #             for idx, newComment in enumerate(newComments):
-    #                 print 'BEFORE PAGE: {} COMMENT: {}'.format(index, idx)
-    #                 try:
-    #                     numText = newComment.find_element_by_css_selector('.d-comment__recommend-count--old')
-    #                     num = int(numText.text)
-    #                 except Exception as e:
-    #                     print "Unexpected d-comment__recommend-count--old: {}".format(e)
-                        
-    #                 if isinstance( num, int ) and num > topCommentNumber:
-    #                     topCommentNumber = num
-    #                     _topComment = newComment.find_element_by_css_selector('.d-comment__body')
-    #                     topComment = _topComment.text
-    #                     print 'AFTER PAGE: {}'.format(index)
-    #                     print 'TOP Number: {} COMMENT: {}'.format(topCommentNumber, topComment.encode('utf-8'))
-    #         except TimeoutException:
-    #             print "TimeoutException New Comments"
-    #         except Exception as e:
-    #             print "Unexpected New Comments"
-                               
-
-    # print "DONE Top Comment: {} TopCommentNumber: {} Timestamp: {}".format(topComment.encode('utf-8'), topCommentNumber, timeStamp)
-    # seen.clear()
-    # resultDict = {'topComment':topComment, 'topCommentNumber':topCommentNumber,'timeStamp': timeStamp}
-    # return resultDict
-

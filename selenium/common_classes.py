@@ -8,6 +8,7 @@ class Article:
         self.age = 0
         self.topCommentNum = 0
         self.tag = ''
+        self.img = ''
 
     def __init__(self, url):
         self.url = url
@@ -17,6 +18,7 @@ class Article:
         self.age = 0
         self.topCommentNum = 0
         self.tag = ''
+        self.img = ''
 
     @property   
     def url(self):
@@ -39,6 +41,9 @@ class Article:
     @property
     def tag(self):
         return self.tag        
+    @property
+    def img(self):
+        return self.img
 
     @topComment.setter    
     def topComment(self, value):
@@ -56,6 +61,36 @@ class Article:
     def title(self, value):
         self.title = value
     @numComments.setter
-    def title(self, value):
-        self.title = value
+    def numComments(self, value):
+        self.numComments = value
+    @img.setter
+    def img(self, value):
+        self.img = value        
 
+class CSSXPATH:
+
+   def __init__(self, path, attribute, pathType):
+    if pathType.lower() in "css":
+        pathType = "css"
+    elif pathType.lower() in "xpath":
+        pathType = "xpath"
+    else:
+        raise ValueError ("CSSXPATH class error: must be css or xpath")
+
+    #if pathType.lower() != "css" or pathType.lower() != "xpath":
+    #    raise ValueError ("CSSXPATH class error: must be css or xpath")
+    if len(path) == 0:
+        raise ValueError ("CSSXPATH class error: path is 0")
+    self.pathType = pathType
+    self.path = path
+    self.attribute = attribute
+
+    @property
+    def pathType(self):
+        return self.pathType
+    @property
+    def path(self):
+        return self.path
+    @property
+    def attribute(self):
+        return self.attribute
