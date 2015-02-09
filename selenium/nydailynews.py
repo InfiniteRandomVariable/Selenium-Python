@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import common_classes, jsonHelper, timeHelper,re, nydailynews_time, time, articleUtil
+import common_classes, jsonHelper, timeHelper,re, nydailynews_time, time, articleUtil, imageUtil
 
 
 ##PROBLEM
@@ -91,6 +91,12 @@ for article in pages[:]:
 	isFirstPage = False
 
 	numCommentsText = WebDriverWait(browser, 60).until(EC.presence_of_element_located((By.CSS_SELECTOR, NUM_REVIEWS))).text.strip()
+
+
+
+	##article .a-image img src
+	#article .ndn_startOverlayContainer.ndn_playerOverlay .backstretch>img src
+
 	nCT = re.sub(r'\D',"",numCommentsText)
 
 	try:
@@ -136,7 +142,12 @@ for article in pages[:]:
 
 
 	if len(article.title) > 2 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10:
-		rowElements.append(article)
+
+		isSuccess = imageUtil.imageProcedure(browser, article.title, cssXpaths=[common_classes.CSSXPATH("article .a-image img", "src", "css"), common_classes.CSSXPATH("article .ndn_startOverlayContainer.ndn_playerOverlay .backstretch>img", "src", "css")])
+		article.img = imageUtil.imageTitlePathJPG(article.title)
+		if isSuccess and len(article.img) > 2:
+			rowElements.append(article)
+
 	else:
 		print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s " %( article.title,article.topComment, article.url, article.age)
 		pass

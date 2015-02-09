@@ -7,7 +7,7 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException,
 import common_classes, jsonHelper, timeHelper,re,time, articleUtil
 import pytz, datetime
 import calendar
-import re
+import re, imageUtil
 
 
 ##PROBLEM
@@ -51,39 +51,56 @@ MAX_RANKING=5
 WAIT_SECONDS = 3
 
 POPULARS = '.yt-uix-sessionlink.yt-uix-tile-link'
+THUMB_PATH = '.yt-thumb-clip>img'
 
 pages=[]
 try:
 	
-	rows = WebDriverWait(browser, 25).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,POPULARS)))[0:MAX_RANKING]
+	topElm = WebDriverWait(browser, 25).until(EC.presence_of_element_located((By.ID,"browse-items-primary")))
 
-	for row in rows[:]:
+	rows = topElm.find_elements_by_css_selector(POPULARS)[0:MAX_RANKING]
+	imgRows = topElm.find_elements_by_css_selector(THUMB_PATH)[0:MAX_RANKING]
+
+	for index in range(len(rows)):
+		row = rows[index]
+		iRow = None
+
+		if len(imgRows) > index:
+			iRow = imgRows[index]
+
+
+	#for row in rows[:]:
 
 		a = common_classes.Article(row.get_attribute('href'))
-		if len(a.url) > 5:
-			pages.append(a)
+		a.title = row.get_attribute('title')
+		if len(a.url) > 5 and iRow:
+			isSuccess = imageUtil.imageProcedure(browser, a.title , cssXpaths=[common_classes.CSSXPATH(THUMB_PATH, "src", "css")] , webElement=iRow)
+			a.img = imageUtil.imageTitlePathJPG(a.title)
+			if isSuccess and len(a.img) > 2:
+				pages.append(a)
 
-		#print "URL %s" % a.url
+
 
 except Exception as e:
 	print(e)
 	#print "Exception: failure in bloomberg \n%s" % e
 
-isFirstPage = True
+
 for article in pages[:]:
 	#print "6"
 	url = "%s%s" %(article.url, '#disqus_thread')
 	browser.get(url)
-	if isFirstPage == False:
-		time.sleep(WAIT_SECONDS)
-	isFirstPage = False
+	
+	time.sleep(WAIT_SECONDS)
+	
 
 #article.tag = WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR,".blogName>a"))).text.strip()
 	
 	try:
 
-		article.title = WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.ID,'eow-title'))).text.decode('utf-8', errors='ignore').strip()
-		print(type(article.title)) 
+		#uni code error? and random symbols?
+		#article.title = WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.ID,'eow-title'))).text.decode('utf-8', errors='ignore').strip()
+		#print(type(article.title)) 
 		timeText  = WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR,".watch-time-text"))).text
 		#article.age = int(theTimeStampText)/1000
 		article.age = timeToTimeStamp(timeText)
@@ -92,33 +109,52 @@ for article in pages[:]:
 			continue
 		#print "timeStamp: %s" % article.age
 	except Exception as e:
-		print(e)
+		print("Exception youtube0 {0}".format(e))
 		browser.switch_to.default_content()
 		continue
 
-	frame = WebDriverWait(browser,30).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.comments-iframe-container>div>iframe')))
+	try:
 
-	browser.switch_to.frame(frame)
-	numCommentText = WebDriverWait(browser,30).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.DJa'))).text.strip()
+		frame = WebDriverWait(browser,30).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.comments-iframe-container>div>iframe')))
+		browser.switch_to.frame(frame)
+		time.sleep(WAIT_SECONDS)
+		numCommentText = WebDriverWait(browser,30).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.DJa'))).text.strip()
+		article.numComments = int(re.sub(r'\D', "", numCommentText).strip())
 
-	article.numComments = int(re.sub(r'\D', "", numCommentText).strip())
+	except Exception as e:
+		print("Exception youtube1 {0}".format(e))
+		continue
+
+
+
 	#print "commentNum: %s commentNumText: %s" % (numCommentText,article.numComments)
 	if article.numComments < MIN_COMMENT_NUM:
 		#print "CONTINUE: comment number is too low"
 		browser.switch_to.default_content()
 		continue
 
-	article.topComment = WebDriverWait(browser,30).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.Ct'))).text
-	article.topComment = articleUtil.truncatedStringForRow(article.topComment)
+	try:
+
+		article.topComment = WebDriverWait(browser,30).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.Ct'))).text
+		article.topComment = articleUtil.truncatedStringForRow(article.topComment)
+
+	except Exception as e:
+		print("Exception youtube2 {0}".format(e))
+		continue
+
 
 	print(type(article.topComment))
 
-	article.topCommentNum = int(WebDriverWait(browser,30).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.uPc.bmd'))).text.strip())
-	browser.switch_to.default_content()
-	article.tag = 'video'
+	try:
+		article.topCommentNum = int(WebDriverWait(browser,30).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.uPc.bmd'))).text.strip())
+		browser.switch_to.default_content()
+		article.tag = 'video'
+	except Exception as e:
+		print("Exception youtube3 {0}".format(e))
+		continue	
 
 
-	if len(article.title) > 2 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10 and article.topCommentNum > MIN_LIKES:
+	if len(article.img) > 2 and len(article.title) > 2 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10 and article.topCommentNum > MIN_LIKES:
 		rowElements.append(article)
 	else:
 		#print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s article.topCommentNum %s " %( article.title,article.topComment, article.url, article.age, article.topCommentNum)

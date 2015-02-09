@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import common_classes, jsonHelper, timeHelper, time, re, articleUtil
+import common_classes, jsonHelper, timeHelper, time, re, articleUtil, imageUtil
 
 
 #find chart highlights
@@ -205,15 +205,25 @@ for index in range(len(rows)):
 	topComment = articleUtil.truncatedStringForRow(topComment)
 
 	if len (topComment) > 10:
+		browser.switch_to.default_content();
 		print "top comment"
-		
+		# #mainPhoto .image>img
+		# #slider img
 		a.numComments = comNum
 		a.topComment = topComment
 		a.age = 0
 		a.topCommentNum = topCommentNumber
-		a.tag = 'entertainment'
-	
-	articles.append(a)
+		a.tag = 'enews'
+
+		isSuccess = imageUtil.imageProcedure(browser, a.title, cssXpaths=[common_classes.CSSXPATH("#mainPhoto .image>img", "src", "css"),common_classes.CSSXPATH("#slider img", "src", "css") ])
+		print(isSuccess)
+		a.img = imageUtil.imageTitlePathJPG(a.title)
+		print("imageURL {0}".format(a.img))
+		if isSuccess and len(a.img) > 2:
+			articles.append(a)
+			
+
+		
 	#browser.switch_to.default_content();
 
 jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),articles,"people", 1)

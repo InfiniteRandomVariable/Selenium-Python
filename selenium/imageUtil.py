@@ -21,8 +21,8 @@ def matchURLEndJPG(url):
 	elif '.jpeg' in url:
 		return "{0}{1}".format(searchObj.group(),'.jpeg')
 	else:
-		raise ValueError("Error matchURLUtilJPG: {0}".format(url))
-		return ""
+		print("WARNING no jpg/jpeg matchURLUtilJPG: {0}".format(url))
+		return url
 
 
 #http://stackoverflow.com/questions/19532125/cant-install-pil-after-mac-os-x-10-9
@@ -36,11 +36,6 @@ def imageURLformatter(url, maxStringLength=9):
 	print(fURL)
 	return fURL
 
-# def imageURLJPG(url):
-# 	return "{0}.{1}".format(url,'jpg')
-
-# def imageURL_type(url, ext):
-# 	return "{0}.{1}".format(url,ext)
 
 #get the image to PIL Image
 #use this im.verify() to verify the file
@@ -99,15 +94,19 @@ def getQualifyImgExt(url):
 ## the bash script will convert to jpg format
 ## the cloud will expect image with jpg extension.
 
-def getImageAndSave(url, articleTitle):
+def getImageAndSave(url, articleTitle, knownExt=None):
 
 	try:
 
 		ext = getQualifyImgExt(url)
 		if ext == 'jpeg':
 			ext = 'jpg'
-		elif not len(ext) > 1:
+		elif knownExt and len(knownExt) > 1:
+			ext = knownExt.lower()
+		elif not ext or ext and len(ext) < 1:
+			print("WARNING: unsupported format {0}".format(url))
 			return False
+
 
 		print("getImageAndSave 0")
 		response = requests.get(url)
@@ -153,10 +152,6 @@ def getImageAndSave(url, articleTitle):
 		return False
 
 
-#".image img"
-#"img.media-viewer-candidate"
-#"src"
-
 def isImageExistLocally(title):
 	imgTitle = imageURLformatter(title);
 	global isMatch
@@ -189,7 +184,7 @@ def getURL(url):
 
 
 ## if success, it should return a non empty string presenting the img ext
-def imageProcedure(driver, title , cssXpaths=[],  webElement=None ):
+def imageProcedure(driver, title , cssXpaths=[],  webElement=None ,knownExt=None ):
 	if not isinstance( driver, WebDriver):
 		raise ValueError("Must be seleniumDriver")
 
@@ -230,17 +225,25 @@ def imageProcedure(driver, title , cssXpaths=[],  webElement=None ):
 			elememt = None
 			try:
 				if cssXpath.pathType == 'css' or webElement:
-					print("css section URL:{0} attribute: {1} path: {2}".format(imageURL, cssXpath.attribute, cssXpath.path))
+					print("css section 0 attribute: {0} path: {1}".format(cssXpath.attribute, cssXpath.path))
 
 					if webElement:
+						print("css section 0.1")
 						elememt = webElement
 					else:
-						elememt = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, cssXpath.path)))
+						print("css section 0.2")
+						elememt = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR, cssXpath.path)))
+						print("css section 0.3")
+
 
 					imageURL = elememt.get_attribute(cssXpath.attribute)
 					imageURLResult = getURL(imageURL)
+					print("css section 1 imageURLResult: {0}".format(imageURL))
 					if imageURLResult: 
 						imageURL = matchURLEndJPG(imageURLResult.group())
+
+					print("css section 2 URL: {0}".format(imageURL))
+
 					if len(imageURL) < 2:
 						imageURL = imageURLResult.group()
 					##wsj "background-image:url(http://m.wsj.net/video/20150205/020415pathomap1/020415pathomap1_960x540.jpg)"
@@ -252,11 +255,12 @@ def imageProcedure(driver, title , cssXpaths=[],  webElement=None ):
 					imageURL = elememt.get_attribute(cssXpath.attribute)
 					print("xpath section {0} attribute: {1} path: {2}".format(imageURL, cssXpath.attribute, cssXpath.path))
 			except Exception as e:
+				print(e)
 				continue 
 
 			if len(imageURL) > 0:
 				print("about to call get Image and save {0}".format(imageURL))
-				isSuccess = getImageAndSave(imageURL, title)
+				isSuccess = getImageAndSave(imageURL, title, knownExt)
 				print("about to call get Image and save {0}".format(isSuccess))
 				if isSuccess:
 					return getQualifyImgExt(imageURL)

@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import common_classes, jsonHelper, timeHelper,re, techCrunchTime,time, articleUtil
+import common_classes, jsonHelper, timeHelper,re, techCrunchTime,time, articleUtil, imageUtil
 
 
 ##PROBLEM
@@ -118,7 +118,13 @@ for page in pages[:MAX_PAGE_VISIT]:
 
 			if len(page.title) > 2 and len(page.topComment) > 2 and len(page.url) > len(WEBSITE_URL) and page.age > 100000:
 				#print "12"
-				rowElements.append(page)
+				browser.switch_to.default_content()
+				isSuccess = imageUtil.imageProcedure(browser, page.title, cssXpaths=[common_classes.CSSXPATH(".article-entry>img", "src", "css")])
+
+				if isSuccess and len(page.img) > 2:
+					page.img = imageUtil.imageTitlePathJPG(page.title)
+					rowElements.append(page)
+
 			else:
 				print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s " %( page.title, page.topComment, page.url, page.age)	
 				pass

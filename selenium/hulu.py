@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import common_classes, jsonHelper, timeHelper,re
+import common_classes, jsonHelper, timeHelper,re, imageUtil
 
 
 ##PROBLEM
@@ -22,6 +22,7 @@ rowElements = []
 MAX_RANKING = 5
 
 FIRST_SECTION = ".subgrid"
+'img.thumbnail'
 
 
 try:
@@ -48,13 +49,18 @@ try:
 		source = clip.find_element_by_css_selector(".source").text.strip()
 		duration = clip.find_element_by_css_selector(".duration").text.strip()
 
+		imgElm = clip.find_element_by_css_selector('img.thumbnail')
+		isSuccess = imageUtil.imageProcedure(browser, a.title , cssXpaths=[common_classes.CSSXPATH("img.thumbnail", "src", "css")] , webElement=imgElm, knownExt='jpg')
+		a.img = imageUtil.imageTitlePathJPG(a.title)
+
+
 		a.topComment = '%s%s' % (source , duration)
 		a.tag = 'video'
 		a.age = 0
 		a.topCommentNum = counter
 		counter = counter - 1
 
-		if len(a.title) > 2 and len(source) > 2 and len(duration) > 1 and len(a.url) > len(BASE):
+		if len(a.title) > 2 and len(source) > 2 and len(duration) > 1 and len(a.url) > len(BASE) and isSuccess and len(a.img) > 2:
 			rowElements.append(a)			
 
 except Exception as e:

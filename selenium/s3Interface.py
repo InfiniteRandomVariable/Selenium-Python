@@ -49,7 +49,8 @@ def readCred():
 # chown -R username:groupname .
 
 def sendData( localPath, buckName=None, forwardWrite=24):
-
+	
+	#thelocalPath = "{0}".format( localpath )
 	#print "localPath 1 %s" % localPath
 
 	if not buckName or len(buckName) < 1:
@@ -107,6 +108,7 @@ def sendData( localPath, buckName=None, forwardWrite=24):
 			uploadSuffixSubstringHelper = -len(UPLOAD_SUFFIX)
 
 			def step(ext, dirname, names):
+				#global _localPath
 
 				ext = ext.lower()
 				print("0 ext: {0}".format(ext))
@@ -169,10 +171,16 @@ def sendData( localPath, buckName=None, forwardWrite=24):
 						print("time date 2")
 
 						durationInSeconds = nowInSeconds - modifiedTimeInSeconds
+						systemPath = jsonHelper.getCompleteFilePath()
+						print("should delete: {0}{1}/{2}".format(systemPath, dirname[1:], name))
+						#os.remove(localPath)
+						#assume default dirname is "./xyz"
+						deleteFilePath = "{0}{1}/{2}".format(systemPath, dirname[1:], name))
 
 						if durationInSeconds > OneAndHalfDay and len(imageNameList) > 0:
 							try:
 								b.delete_key(imagekey)
+								#os.remove(deleteFilePath)
 							except Exception as e:
 								print ("Exception in deleting key: {0} - {1}".format(imagekey, e))
 
@@ -217,8 +225,9 @@ def sendData( localPath, buckName=None, forwardWrite=24):
 					k.copy(buckName,"%s/%d.json" % (publicationName, timestamp)).make_public()
 
 				
-				timestamp = timestamp + 1		
-		os.remove(localPath)
+				timestamp = timestamp + 1
+		#print("should delete: {0}".format(localpath))
+		#os.remove(localPath)
 
 	except Exception as e:
 		print(e)
