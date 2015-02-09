@@ -1,0 +1,44 @@
+{
+ "atlantic": [
+  {
+   "img": "i/Blog-Post.jpg", 
+   "title": "Stripping a Professor of Tenure Over a Blog Post", 
+   "url": "http://www.theatlantic.com/education/archive/2015/02/stripping-a-professor-of-tenure-over-a-blog-post/385280/", 
+   "age": 1423501175, 
+   "topComment": "In McAdams' case, there is a relevant history. Specifically, he has a history of using his blog to attack not only faculty but Marquette students -- in the past he has made posts that, by name, attack undergraduates for things they have said on campu...", 
+   "tag": "education", 
+   "topCommentNum": 42, 
+   "numComments": 174
+  }, 
+  {
+   "img": "i/e-Grammys.jpg", 
+   "title": "Kanye Should Have Taken the Mic From Beck at the Grammys", 
+   "url": "http://www.theatlantic.com/entertainment/archive/2015/02/kanye-should-have-stormed-the-stage-at-the-grammys/385288/", 
+   "age": 1423488110, 
+   "topComment": "First of all, where do West or Kornhaber get off implying that Beck isn't a serious artist? This isn't Milli Vanilli you're talking about here, this is an incredibly talented artist who's done more to enrich music as a whole than Beyonce has. Whether...", 
+   "tag": "entertainment", 
+   "topCommentNum": 106, 
+   "numComments": 311
+  }, 
+  {
+   "img": "i/-or-Sick.jpg", 
+   "title": "Sleepy, Stressed, or Sick?", 
+   "url": "http://www.theatlantic.com/health/archive/2015/02/why-is-one-of-the-most-common-diseases-still-so-mysterious/385256/", 
+   "age": 1423485300, 
+   "topComment": "Why is there a photo of someone who suffers from HYPER- thyroidism in an article about HYPO-thyroidism? These are two different birds.", 
+   "tag": "health", 
+   "topCommentNum": 15, 
+   "numComments": 32
+  }, 
+  {
+   "img": "i/-Marriage.jpg", 
+   "title": "Alabama's 'Dramatic Defiance' on Gay Marriage", 
+   "url": "http://www.theatlantic.com/politics/archive/2015/02/forget-alabama-federalism-has-been-great-for-gay-marriage/385289/", 
+   "age": 1423479600, 
+   "topComment": "The GOP has just doomed themselves with this. Just as their opposition to civil rights (along with the Dixiecrats) doomed the GOP's future with African Americans, this will doom their future with anyone under 30. Rather than a \"big tent\", they've mer...", 
+   "tag": "politics", 
+   "topCommentNum": 34, 
+   "numComments": 364
+  }
+ ]
+}

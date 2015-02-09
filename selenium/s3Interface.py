@@ -161,7 +161,7 @@ def sendData( localPath, buckName=None, forwardWrite=24):
 						modified = time.strptime(imagekey.last_modified, '%a, %d %b %Y %H:%M:%S %Z')
 
 						#convert to datetime
-						print("time date 0")
+						print("time date 0 keyName: {0}".format(keyName))
 						mdt = datetime.datetime.fromtimestamp(mktime(modified))
 						print("time date 1")
 						#(dt.datetime(1970,1,1)).total_seconds()
@@ -175,7 +175,7 @@ def sendData( localPath, buckName=None, forwardWrite=24):
 						print("should delete: {0}{1}/{2}".format(systemPath, dirname[1:], name))
 						#os.remove(localPath)
 						#assume default dirname is "./xyz"
-						deleteFilePath = "{0}{1}/{2}".format(systemPath, dirname[1:], name))
+						deleteFilePath = "{0}{1}/{2}".format(systemPath, dirname[1:], name)
 
 						if durationInSeconds > OneAndHalfDay and len(imageNameList) > 0:
 							try:

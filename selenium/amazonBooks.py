@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import common_classes, jsonHelper, timeHelper,re, time, articleUtil
+import common_classes, jsonHelper, timeHelper,re, time, articleUtil, imageUtil
 
 
 ##PROBLEM
@@ -74,7 +74,8 @@ try:
 			book = common_classes.Article(bookURL)
 
 			numReviewElm = WebDriverWait(row, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR,NUM_REVIEW )))
-			book.numComments = int(numReviewElm.text.strip())
+			
+			book.numComments = int(re.sub(r'[^\d]', '', numReviewElm.text))
 			book.tag = numReviewElm.get_attribute('href').strip()
 
 			author = row.find_element_by_css_selector(AUTHOR).text.strip()
@@ -97,13 +98,64 @@ for book in books[:]:
 
 	try:
 		#print "6"
-		browser.get(book.tag)
+		browser.get(book.url)
+		time.sleep(WAIT_SECONDS)
 
-		if isFirstPage == False:
-			time.sleep(WAIT_SECONDS)
-		isFirstPage = False				
-		#print "7"
-		firstReview = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, REVIEWS)))
+		reviewSectionElm = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.ID,"revMHRL")))
+		if not reviewSectionElm:
+			continue
+		commentElm = reviewSectionElm.find_element_by_css_selector(".MHRHead")
+		if not commentElm:
+			continue
+
+		comment = re.sub(r'\<br\/\>*', '', commentElm.text)
+
+		if not comment or len(comment) < 2:
+			print("Error comment {0}".format(comment))
+			continue
+
+		titleElm = reviewSectionElm.find_element_by_css_selector(".a-size-base.a-text-bold")
+		if not titleElm:
+			continue
+
+		title = re.sub(r'\\\"', '"', titleElm.text)
+		if not title or len(title) < 2:
+			print("Error title {0}".format(title))
+			continue
+
+
+		## #revMHRL .MHRHead
+		## select the comment
+		## delete all the <br/>
+
+		## #revMHRL .a-size-base.a-text-bold
+		## select title
+
+
+		#download the image
+		WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'#imgThumbs .a-color-link'))).click()
+		#igImage
+
+		print("about to call getImageAndSave")
+		isSuccess = imageUtil.imageProcedure(browser, book.title, [common_classes.CSSXPATH("#igImage", "src", "css")])
+		print("return from getImageAndSave")        
+		book.img = imageUtil.imageTitlePathJPG(book.title)
+
+
+
+
+
+
+
+
+
+		# if isFirstPage == False:
+		# 	time.sleep(WAIT_SECONDS)
+		# isFirstPage = False				
+		# #print "7"
+		# firstReview = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, REVIEWS)))
+
+
 
 	#text and extract the number by regex
 	#eg. str ='1,229 of 1,267 people found the following review helpful by minus'
@@ -121,36 +173,37 @@ for book in books[:]:
 		# 		continue
 		# except Exception as e:
 		# 	print "Exception0: %s" % e
-		book.topCommentNum = 0
 
-		topComment = ''
-		try:
-			com = firstReview.find_element_by_xpath('div[2]/span[2]/b').text.strip()
-			print "COM: %s" % com
-			topComment =  re.sub(r'\\\"', '"', com)
-			print "TOP COMMENT: %s" % topComment
 
-		except Exception as e:
-			print "Exception1: %s" % e
+		# book.topCommentNum = 0
 
-		reviewText = ''
-		try:
-			reviewText = firstReview.find_element_by_css_selector('.reviewText').text
-		except Exception as e:
-			print "Exception2: %s" % e
+		# topComment = ''
+		# try:
+		# 	com = firstReview.find_element_by_xpath('div[2]/span[2]/b').text.strip()
+		# 	print "COM: %s" % com
+		# 	topComment =  re.sub(r'\\\"', '"', com)
+		# 	print "TOP COMMENT: %s" % topComment
 
-		##dots = ''
+		# except Exception as e:
+		# 	print "Exception1: %s" % e
 
-		tComSize = len(topComment)
-		rTextSize = len(reviewText)
+		# reviewText = ''
+		# try:
+		# 	reviewText = firstReview.find_element_by_css_selector('.reviewText').text
+		# except Exception as e:
+		# 	print "Exception2: %s" % e
+
+
+		tComSize = len(title)
+		rTextSize = len(comment)
 		##if(len(reviewText) > 98):
 
 		if tComSize > 3 and rTextSize > 3:	
-			book.topComment = "%s - %s" %(topComment, reviewText)
+			book.topComment = "%s - %s" %(title, comment)
 		elif tComSize > 3:
-			book.topComment = topComment
+			book.topComment = title
 		elif rTextSize > 3:
-			book.topComment = reviewText
+			book.topComment = comment
 
 		book.topComment = articleUtil.truncatedStringForRow(book.topComment);
 
@@ -158,7 +211,7 @@ for book in books[:]:
 
 		book.age = 10000
 
-		if len(book.title) > 2 and len(book.topComment) > 3 and len(book.url) > len(BASE) and book.numComments > 30 and book.age > 10:
+		if isSuccess and len(book.img) > 1 and len(book.title) > 2 and len(book.topComment) > 3 and len(book.url) > len(BASE) and book.numComments > MIN_COMMENT_NUM and book.age > 10:
 			rowElements.append(book)
 
 	except Exception, e:

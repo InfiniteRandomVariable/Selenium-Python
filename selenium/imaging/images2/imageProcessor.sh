@@ -1,26 +1,30 @@
 #!/bin/sh
 
-
-#NOTE
-#the original saved image file format should support common image types
-#expect the final image format comply to jpg codec
 #/Users/pro001/Desktop/Dev/Learning/tests/scrapWeb/hello-world/selenium/imaging/images
-
-for img in `ls *`
+BASE="./imaging/images"
+for img in `ls $BASE`
 do
 
 	#per unit 38.75
 	defaultWidth=465
-	defaultHeight=280
+	defaultHeight=300
 	#defaultWidth=620
 	#defaultHeight=420
 
   	if [ "$img" != "imageProcessor.sh" ] ; then
 
   		##convert lab.tif -resize 50% resize.jpg
-  		magickCommand='convert '"$img"
-		theType=`identify -format "%m %wx%h" $img`
-		echo $theType
+  		echo
+  		echo
+  		echo "START $img"
+  		imagePath="$BASE/$img"
+  		#magickCommand='convert '"$BASE/$img"
+		#theType=`identify -format "%m %wx%h" $BASE/$img`
+
+  		magickCommand='convert '"$imagePath"
+		theType=`identify -format "%m %wx%h" $imagePath`
+
+		echo "identify: $theType"
 
 		fileNameJPG=""
 		NO='NO'
@@ -49,23 +53,31 @@ do
 
 	  	imageWidth=`[[ $theType =~  [0-9]+ ]] && echo ${BASH_REMATCH[0]}`
 	  	imageHeight=`[[ $theType =~  [0-9]+$ ]] && echo ${BASH_REMATCH[0]}`
+	  	echo "imageWidth: $imageWidth imageHeight: $imageHeight"
 
 	  	error=''
 
+	  	if [ -z "$imageHeight" ] || [ -z "$imageWidth" ] ; then
+	  		error="error imageWidth: $imageWidth imageHeight: $imageHeight"
+
+	  	fi 
+
+	  	
 
 
-		if [  $imageWidth -eq $imageHeight ] && [ $imageWidth -ge 100 ] ; then
+
+		if [ -z "$error" ] && [  "$imageWidth" -eq "$imageHeight" ] && [ "$imageWidth" -ge 100 ] ; then
 			##"Square"
-			magickCommand=$magickCommand' -resize '"$defaultWidth"'x -gravity center -background white -extent '"$defaultWidth"'x'"$defaultHeight"' -crop '"$defaultWidth"'x'"$defaultHeight"' '"$fileNameJPG"
+			magickCommand=$magickCommand' -resize '"$defaultWidth"'x -gravity center -background white -extent '"$defaultWidth"'x'"$defaultHeight"' -crop '"$defaultWidth"'x'"$defaultHeight"' '"$BASE/$fileNameJPG"
 
-		elif [ $imageWidth -ge $imageHeight ] ; then
+		elif [ -z "$error" ] && [ "$imageWidth" -ge "$imageHeight" ] ; then
 			## "Landscape"
-			magickCommand=$magickCommand' -resize '"$defaultWidth"'x -gravity center -background white -extent '"$defaultWidth"'x'"$defaultHeight"' -crop '"$defaultWidth"'x'"$defaultHeight"' '"$fileNameJPG"
+			magickCommand=$magickCommand' -resize '"$defaultWidth"'x -gravity center -background white -extent '"$defaultWidth"'x'"$defaultHeight"' -crop '"$defaultWidth"'x'"$defaultHeight"' '"$BASE/$fileNameJPG"
 
-		elif [ $imageHeight -ge $imageWidth ] ; then
+		elif [ -z "$error" ] && [ "$imageHeight" -ge "$imageWidth" ] ; then
 			## "Portrait"
-			magickCommand=$magickCommand' -resize x'"$defaultHeight"' -gravity center -background white -extent '"$defaultWidth"'x'"$defaultHeight"' -crop '"$defaultWidth"'x'"$defaultHeight"' '"$fileNameJPG"
-		else
+			magickCommand=$magickCommand' -resize x'"$defaultHeight"' -gravity center -background white -extent '"$defaultWidth"'x'"$defaultHeight"' -crop '"$defaultWidth"'x'"$defaultHeight"' '"$BASE/$fileNameJPG"
+		elif [ -z "$error" ] ; then 
 			## "error"
 			error='minor error: fail to match dimension'
 		fi
@@ -78,10 +90,11 @@ do
 			$magickCommand
 		fi
 
+		pyExtension=`[[ $img =~ ^.*\.(py|PY|pY|Py|sh|SH|Sh|sH)$ ]] && echo ${BASH_REMATCH[1]}`
 
-		if [ -z "$error" ] && [ "$shouldDelete" == "$YES" ] ; then
+		if [ -z "$error" ] && [ "$shouldDelete" == "$YES" ] && [ ${#pyExtension} -eq 0 ]; then
 			echo "DELETE: $img"
-			rm $img
+			rm $imagePath
 		fi
 
 

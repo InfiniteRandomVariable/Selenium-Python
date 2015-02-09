@@ -29,14 +29,23 @@ do
 		fileNameJPG=""
 		NO='NO'
 		YES='YES'
+		error=''
 		
 		##echo $a | tr '[:upper:]' '[:lower:]'
-		imageExtension=`[[ $img =~ ^.*\.(jpg|JPG|JPEG|jpeg|png|PNG|gif|GIF|tiff|TIFF|bmp|BMP)$ ]] && echo ${BASH_REMATCH[1]}`
+		didUpload=`[[ $img =~ ^.*(uploaded) ]] && echo ${BASH_REMATCH[1]}`
+
+		if [ -z "$didUpload" ] ; then
+			imageExtension=`[[ $img =~ ^.*\.(jpg|JPG|JPEG|jpeg|png|PNG|gif|GIF|tiff|TIFF|bmp|BMP)$ ]] && echo ${BASH_REMATCH[1]}`
+		else
+			error='WARNING: didUpload'
+		fi
+
+		
 
 		shouldDelete="$NO"
 
 		echo 'imageExtension: '"$imageExtension"
-
+		 
 		if [ ${#imageExtension} -eq 0 ] ; then
 			fileNameJPG="$img.jpg"
 			shouldDelete="$YES"
@@ -55,7 +64,7 @@ do
 	  	imageHeight=`[[ $theType =~  [0-9]+$ ]] && echo ${BASH_REMATCH[0]}`
 	  	echo "imageWidth: $imageWidth imageHeight: $imageHeight"
 
-	  	error=''
+	  	
 
 	  	if [ -z "$imageHeight" ] || [ -z "$imageWidth" ] ; then
 	  		error="error imageWidth: $imageWidth imageHeight: $imageHeight"
@@ -96,6 +105,8 @@ do
 			echo "DELETE: $img"
 			rm $imagePath
 		fi
+
+		echo $error
 
 
 	  	##exec $magickCommand

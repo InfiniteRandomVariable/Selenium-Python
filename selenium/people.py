@@ -38,10 +38,10 @@ browser.get('http://www.people.com/people/news/')
 rowElements = []
 
 # allow top 5 items to be in the listing
-divider = 2
+divider = 5
 MIN_RANKING = 4
 MIN_COMMENT = 20/divider
-COMMENT_NUM_CRITERIA = 100/divider
+COMMENT_NUM_CRITERIA = 50/divider
 WAIT_SECONDS = 3
 
 popular = None
