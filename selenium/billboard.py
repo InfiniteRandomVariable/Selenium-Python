@@ -109,13 +109,19 @@ for row in rowElements[:]:
 	a.topComment = row.find_element_by_css_selector('.row-title>h3>a').text.strip()
 
 	imageElm = row.find_element_by_css_selector('.row-image')
+
+	#Minor issue: title should use the value of title attribute from article object?
+	
 	if imageElm:
+		print("success 0")
 		isSuccess = imageUtil.imageProcedure(browser, title , cssXpaths=[common_classes.CSSXPATH(".row-image", "style", "css")] , webElement=imageElm)
 		a.img = imageUtil.imageTitlePathJPG(title)
 
-		if not isSuccess or len(a.img) > 2:
+		if not isSuccess or len(a.img) < 3:
+			print("not success 1 img:{0} isSuccess{1}".format(a.img, isSuccess))
 			continue
 	else:
+		print("success 2")
 		continue
 
 

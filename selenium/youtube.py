@@ -42,7 +42,7 @@ WEBSITE_URL = '%s/channel/UCF0pVplsI8R5kcAqgtoRqoA' % BASE
 browser.get(WEBSITE_URL)
 
 rowElements = []
-divider = 1
+divider = 10
 MIN_LIKES = 30/divider
 MIN_COMMENT_NUM = 100/divider
 MAX_PAGE_VISIT = 3

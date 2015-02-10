@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementNotVisibleException
-import common_classes, jsonHelper, timeHelper,re, imageUtil, time
+import common_classes, jsonHelper, timeHelper,re, imageUtil, time, articleUtil
 
 
 browser = webdriver.Firefox()
@@ -19,7 +19,7 @@ browser.get(WEBSITE_URL)
 rowElements = []
 # allow top 5 items to be in the listing
 MIN_RANKING = 4
-MIN_SCORE = 74
+MIN_SCORE = 69
 MAX_RANKING_TOP_BOX_OFFICE = 5
 
 OPENING_THIS_WEEK = "Opening"
@@ -94,8 +94,28 @@ for a in rowElements[:]:
 	time.sleep(WAIT_SECONDS)
 	isSuccess = imageUtil.imageProcedure(browser, a.title , cssXpaths=[common_classes.CSSXPATH("#poster_link>img", "src", "css")])
 	a.img = imageUtil.imageTitlePathJPG(a.title)
-	if not len (a.img) > 2 or isSuccess:
+	if not isSuccess or len (a.img) < 3:
 		rowElements.remove(a)
+	try:	
+		criticElm = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR,".critic_consensus")))
+		if criticElm:
+			cText = criticElm.text
+			cText = re.sub(r'Critics Consensus:', "", cText)
+			print("cText: {0}".format(cText))
+			if len(cText) < 40:
+				synElm = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.ID,"movieSynopsis")))
+
+				if synElm:
+					print("synElmText: {0}".format(synElm.text))
+					a.topComment = "{0}: {1}".format(a.topComment, synElm.text )
+					a.topComment = articleUtil.truncatedStringForRow(a.topComment)
+
+			else:
+				a.topComment = "{0}: {1}".format(a.topComment, cText.strip())
+				a.topComment = articleUtil.truncatedStringForRow(a.topComment)
+	except Exception as e:
+		print(e)			
+	
 
 
 timeStamp = timeHelper.APP_TIMESTAMP()

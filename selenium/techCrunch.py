@@ -121,9 +121,10 @@ for page in pages[:MAX_PAGE_VISIT]:
 				browser.switch_to.default_content()
 				isSuccess = imageUtil.imageProcedure(browser, page.title, cssXpaths=[common_classes.CSSXPATH(".article-entry>img", "src", "css")])
 
-				if isSuccess and len(page.img) > 2:
+				if isSuccess:
 					page.img = imageUtil.imageTitlePathJPG(page.title)
-					rowElements.append(page)
+					if len(page.img) > 2:
+						rowElements.append(page)
 
 			else:
 				print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s " %( page.title, page.topComment, page.url, page.age)	

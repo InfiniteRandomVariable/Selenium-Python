@@ -96,6 +96,8 @@ class FrontAtlantic(unittest.TestCase):
 
 
             x.tag = urlparse(x.url).path.split('/')[1]
+            if x.tag in "entertain":
+                x.tag = "enews"
            # print 'TAG: %s URL: %s' % (x.tag, x.url)
 
             for key, value in topCommentDict.iteritems():

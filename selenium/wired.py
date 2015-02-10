@@ -19,7 +19,7 @@ WEBSITE_URL = '%s' % BASE
 browser.get(WEBSITE_URL)
 
 rowElements = []
-divider = 3
+divider = 4
 MIN_LIKES = 10/divider
 MIN_COMMENT_NUM = 15/divider
 MAX_PAGE_VISIT = 3
@@ -59,11 +59,13 @@ for article in pages[:]:
 	try:
 		_time = WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.XPATH,"//time")))
 
-		isSuccess = imageUtil.imageProcedure(browser, article.title, cssXpaths=[common_classes.CSSXPATH("img.size-660-single-full", "src", "css"), common_classes.CSSXPATH("img.size-full", "src", "css")])
+		# .slide .show
+		isSuccess = imageUtil.imageProcedure(browser, article.title, cssXpaths=[common_classes.CSSXPATH("img.size-660-single-full", "src", "css"), common_classes.CSSXPATH("img.size-full", "src", "css"), common_classes.CSSXPATH(".slide img.show", "src", "css")])
 		if not isSuccess:
 			print('Error: fail to find image from Wired.com: {0}'.format(article.title))
 			continue
-		article.img = imageUtil.imageTitlePathJPG(a.title)
+		article.img = imageUtil.imageTitlePathJPG(article.title)
+	#	print('Wired: title: {0} imagePath: {1}'.format(article.title, article.img))
 
 		if not len(article.img) > 1:
 			continue
@@ -78,7 +80,7 @@ for article in pages[:]:
 
 
 
-	if len(article.title) > 2 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10:
+	if isSuccess and len(article.title) > 2 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10:
 		rowElements.append(article)
 	else:
 		print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s " %( article.title,article.topComment, article.url, article.age)
