@@ -93,7 +93,6 @@ def getQualifyImgExt(url):
 ## don't change the extension type in the save operation
 ## the bash script will convert to jpg format
 ## the cloud will expect image with jpg extension.
-## the local file name is lowercase
 
 def getImageAndSave(url, articleTitle, knownExt=None):
 
@@ -117,7 +116,7 @@ def getImageAndSave(url, articleTitle, knownExt=None):
 		img.verify()
 		print("3")
 		img = Image.open(StringIO(response.content))
- 		localURI = "{0}.{1}".format(imageURI(articleTitle), ext).lower()
+ 		localURI = "{0}.{1}".format(imageURI(articleTitle), ext)
  		print("4")
  		if len(localURI) > 5:
  			print("5 localURL: {0}".format(localURI))

@@ -19,7 +19,7 @@ WEBSITE_URL = '%s' % BASE
 browser.get(WEBSITE_URL)
 
 rowElements = []
-divider = 4
+divider = 5
 MIN_LIKES = 10/divider
 MIN_COMMENT_NUM = 15/divider
 MAX_PAGE_VISIT = 3
@@ -76,11 +76,16 @@ for article in pages[:]:
 		print "EXCEPTION Time %s " % e
 		continue
 
-	disqus.findTopCommentAndTopNumber(browser, article,MIN_COMMENT_NUM,MIN_LIKES)
+	resultDict = disqus.findTopCommentAndTopNumber(browser, article,MIN_COMMENT_NUM,MIN_LIKES)
+	try:
+		article.topComment = resultDict['topComment']
+		article.numComments = resultDict['numComments']
+		article.topCommentNum =  resultDict['topCommentNumber']
+	except Exception as e:
+		print ("WARNING: dictionary {0}".format(e))
+	## {'topComment':topComment, 'topCommentNumber':topCommentNumber,'numComments': comNum}
 
-
-
-	if isSuccess and len(article.title) > 2 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10:
+	if isSuccess and article.topComment and article.numComments and article.topCommentNum and len(article.title) > 2 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10:
 		rowElements.append(article)
 	else:
 		print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s " %( article.title,article.topComment, article.url, article.age)

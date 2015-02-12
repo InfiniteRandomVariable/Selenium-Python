@@ -82,7 +82,7 @@ try:
 
 
 except Exception as e:
-	print(e)
+	print("Exception: topElm {0}".format(e))
 	#print "Exception: failure in bloomberg \n%s" % e
 
 
@@ -153,12 +153,15 @@ for article in pages[:]:
 		print("Exception youtube3 {0}".format(e))
 		continue	
 
+	try:
+		if len(article.img) > 2 and len(article.title) > 2 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10 and article.topCommentNum > MIN_LIKES:
+			rowElements.append(article)
+		else:
+			print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s article.topCommentNum %s " %( article.title,article.topComment, article.url, article.age, article.topCommentNum)
+			pass
+	except Exception as e:
+		print("Exception: {0}".format(e))
 
-	if len(article.img) > 2 and len(article.title) > 2 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10 and article.topCommentNum > MIN_LIKES:
-		rowElements.append(article)
-	else:
-		#print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s article.topCommentNum %s " %( article.title,article.topComment, article.url, article.age, article.topCommentNum)
-		pass
-		
+print("processing json")		
 jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),rowElements,NAME)
 browser.quit()

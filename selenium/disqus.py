@@ -30,10 +30,10 @@ def findTopCommentAndTopNumber(browser, article, COMMENT_NUM_CRITERIA,VOTEUP_CRI
         text = elm.text
         print "Time Text %s" % text
         if isinstance(text, basestring) and len(text) > 0:
-            numText = re.search( r'^\d+\S', text)
+            numText = re.search( r'^\d+\s', text)
             print "numText: %s" % numText.group()
             try:
-                comNum = int(numText.group())
+                comNum = int(numText.group().strip())
             except Exception:
                 print "**************EXCEPTION comment Number"
     except Exception as e:
@@ -90,9 +90,6 @@ def findTopCommentAndTopNumber(browser, article, COMMENT_NUM_CRITERIA,VOTEUP_CRI
         browser.switch_to.default_content();
         return resultDict
 
-
-
-    
 
 
     ##.post-message

@@ -109,7 +109,6 @@ def sendData( localPath, buckName=None, forwardWrite=36):
 
 			uploadSuffixSubstringHelper = -len(UPLOAD_SUFFIX)
 
-			##WARNING: s3 is case insensitive but the local files is case senetive (todo: change to lower case?)
 			##PRECONDITION
 			## it download image files to a local folder in python
 			## on the bash level, the images should be reformatted within the range of acceptable bytes size as JPG images and JPG extension
@@ -118,7 +117,7 @@ def sendData( localPath, buckName=None, forwardWrite=36):
 			## it will iterate through the destination folders.
 			## searches for jpg files to upload and compare the S3 image folder.
 			##    IF no match is identified and conform to acceptable size, it will be uploaded to the S3 folder and rename the extension to uploaded.
-			##    elif match is identified and match jpg extension"
+			##    elif match is identified with jpg extension"
 			## 			delete the file in the local machine
 			## 	  elif file match uploaded extension
 			##			check if exceeded the minimum time
@@ -149,9 +148,9 @@ def sendData( localPath, buckName=None, forwardWrite=36):
 					nameInTheList = False
 					_name =""
 					if name.lower().endswith(UPLOAD_SUFFIX) is True:
-						_name = name[:uploadSuffixSubstringHelper].lower()
+						_name = name[:uploadSuffixSubstringHelper]
 					else:
-						_name = name.lower()
+						_name = name
 
 
 					if _name in imageNameList[:]:
@@ -234,6 +233,16 @@ def sendData( localPath, buckName=None, forwardWrite=36):
 								print ("Exception in deleting key: {0} - {1}".format(imagekey, e))
 						else:
 							print("WITHIN ONE DAY {0}".format(imagekey))
+
+					elif name.lower().endswith(UPLOAD_SUFFIX) is True:
+						systemPath = jsonHelper.getCompleteFilePath()
+						deleteFilePath = "{0}{1}/{2}".format(systemPath, dirname[1:], name)
+						try:
+							print("Deleting Path: {0}".format(deleteFilePath))
+							os.remove(deleteFilePath)
+						except Exception as e:
+							print ("Exception in deleting path: {0} - {1}".format(deleteFilePath, e))
+
 
 			os.path.walk(topdir, step, exten)
 
