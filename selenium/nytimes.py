@@ -53,17 +53,17 @@ WEBSITE_URL = '%s' % BASE
 browser.get('https://myaccount.nytimes.com/auth/login?URI=http://www.nytimes.com/most-popular')
 
 rowElements = []
-divider = 4
+divider = 6
 MIN_LIKES = 30/divider
 MIN_COMMENT_NUM = 100/divider
 MAX_PAGE_VISIT = 3
 WORDS_LIMIT = 140
-MAX_RANKING=5
+MAX_RANKING=7
 WAIT_SECONDS = 3
 
 POPULARS = '//ol/li/a'
 SEARCH_START = 10
-SEARCH_END = 18
+SEARCH_END = 19
 
 
 
@@ -198,9 +198,10 @@ for article in pages[:]:
 		continue
 	
 	#article.tag = WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR,".blogName>a"))).text.strip()
-
+	#figure.media .image.img
+	#.thumb img
 	print("about to call getImageAndSave")
-	isSuccess = imageUtil.imageProcedure(browser, article.title, [common_classes.CSSXPATH(".image img", "src", "css"), common_classes.CSSXPATH("img.media-viewer-candidate", "src", "css")])
+	isSuccess = imageUtil.imageProcedure(browser, article.title, [ common_classes.CSSXPATH("figure.media .image.img", "src", "css"), common_classes.CSSXPATH(".image img", "src", "css"), common_classes.CSSXPATH("#story-body .thumb img", "src", "css"), common_classes.CSSXPATH("img.media-viewer-candidate", "src", "css")])
 	print("return from getImageAndSave")        
 	article.img = imageUtil.imageTitlePathJPG(article.title)
 

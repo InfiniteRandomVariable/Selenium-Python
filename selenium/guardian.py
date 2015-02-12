@@ -31,10 +31,11 @@ class PythonOrgSearch(unittest.TestCase):
         DOMAIN_URL = "http://www.the%s.com/us" % NAME
         containers = None
         articles = []
+        DIVIDER = 2
         MAX_NUM_ARTICLES = 10
-        COMMENT_NUM_CRITERIA = 200
-        TOP_COMMENT_STRING_LEN = 20
-        TOP_COMMENT_NUM = 10
+        COMMENT_NUM_CRITERIA = 200 / DIVIDER
+        TOP_COMMENT_STRING_LEN = 20 / DIVIDER
+        TOP_COMMENT_NUM = 10 / DIVIDER
         DEFAULT_TIME = 1416691395
         TIME_WAIT = 2
 

@@ -20,6 +20,8 @@ OneAndHalfDay = SECONDS_IN_A_DAY * 2
 UPLOAD_SUFFIX = 'uploaded'
 #IMAGE_KEY_SUBFOLDER = "images/"
 IMAGE_KEY_SUBFOLDER = "i/"
+MAX_IMAGE_SIZE = 100000
+MIN_IMAGE_SIZE = 5000
 #TEMP_PATH = 'guardian/1420592.json'
 
 def imagePath():
@@ -48,7 +50,7 @@ def readCred():
 # possible fix: http://stackoverflow.com/questions/10937806/oserror-error-1-operation-not-permitted
 # chown -R username:groupname .
 
-def sendData( localPath, buckName=None, forwardWrite=24):
+def sendData( localPath, buckName=None, forwardWrite=36):
 	
 	#thelocalPath = "{0}".format( localpath )
 	#print "localPath 1 %s" % localPath
@@ -107,6 +109,26 @@ def sendData( localPath, buckName=None, forwardWrite=24):
 
 			uploadSuffixSubstringHelper = -len(UPLOAD_SUFFIX)
 
+			##WARNING: s3 is case insensitive but the local files is case senetive (todo: change to lower case?)
+			##PRECONDITION
+			## it download image files to a local folder in python
+			## on the bash level, the images should be reformatted within the range of acceptable bytes size as JPG images and JPG extension
+			##
+			##CONDITION 
+			## it will iterate through the destination folders.
+			## searches for jpg files to upload and compare the S3 image folder.
+			##    IF no match is identified and conform to acceptable size, it will be uploaded to the S3 folder and rename the extension to uploaded.
+			##    elif match is identified and match jpg extension"
+			## 			delete the file in the local machine
+			## 	  elif file match uploaded extension
+			##			check if exceeded the minimum time
+			##				delete the file in the S3 and local machine
+			##			else do nothing
+			##
+			##
+			##
+			## 
+
 			def step(ext, dirname, names):
 				#global _localPath
 
@@ -118,18 +140,31 @@ def sendData( localPath, buckName=None, forwardWrite=24):
 
 				print("2")
 
-				for name in names:
+				for name in names[:]:
 
 					if len(name) <2:
 						continue
 
-#					if name.lower().endswith(ext) is False:
-#						continue
+					#nameInTheList will be used for idenitfying whether the name is in the S3 data network.
+					nameInTheList = False
+					_name =""
+					if name.lower().endswith(UPLOAD_SUFFIX) is True:
+						_name = name[:uploadSuffixSubstringHelper].lower()
+					else:
+						_name = name.lower()
+
+
+					if _name in imageNameList[:]:
+						nameInTheList = True
+					else:
+						nameInTheList = False
+
+
 					
 					#print("name[:-len(UPLOAD_SUFFIX)]: {0}".format(name[:-(len(UPLOAD_SUFFIX)]))
 					print("3 try: {0}".format(name[:uploadSuffixSubstringHelper]))
 
-					if name.lower().endswith(ext) is True and name not in imageNameList:
+					if name.lower().endswith(ext) is True and not nameInTheList:
 						print("4")
 						keyName = "{0}{1}".format(IMAGE_KEY_SUBFOLDER, name)
 						print("2 keyName: {0}".format(keyName))
@@ -141,17 +176,30 @@ def sendData( localPath, buckName=None, forwardWrite=24):
 
 						try:
 							pathToImageFile = "{0}/{1}".format(localPath,name)
+							img_size = os.stat(pathToImageFile).st_size
+							if img_size > MAX_IMAGE_SIZE or img_size < MIN_IMAGE_SIZE:
+								print(" WARNING: improper image size {0}: {1}".format(img_size, name ))
+								continue
+
 							imagekey.set_contents_from_filename(pathToImageFile)
 							imagekey.make_public()
 							localPathExt = "{0}{1}".format(pathToImageFile, UPLOAD_SUFFIX)
 							os.rename(pathToImageFile, localPathExt)
+							if os.path.exists(pathToImageFile):
+								os.remove(pathToImageFile)
 
 						except Exception as e:
-							print("Exception uploading image: {0} - {1}".format(keyName, e))
+							print("Exception uploading image 0: {0} - {1}".format(name, e))
+					elif name.lower().endswith(ext) is True and nameInTheList:
+						try:
+							pathToImageFile = "{0}/{1}".format(localPath,name)
+							os.remove(pathToImageFile)
+						except Exception as e:
+							print("Exception deleting image 0.1: {0} - {1}".format(name, e))
 
-					elif name.lower().endswith(UPLOAD_SUFFIX) is True and name[:uploadSuffixSubstringHelper] in imageNameList:
+					elif name.lower().endswith(UPLOAD_SUFFIX) is True and nameInTheList:
 
-						keyName = "{0}{1}".format(IMAGE_KEY_SUBFOLDER,name[:uploadSuffixSubstringHelper])
+						keyName = "{0}{1}".format(IMAGE_KEY_SUBFOLDER, name[:uploadSuffixSubstringHelper])
 						imagekey = b.get_key(keyName)
 						print("Not Uploading file name: {0} last-modified: {1}".format(keyName, imagekey.last_modified))
 						##"Thu Jan 29 19:13:17 GMT-800 2015"
@@ -179,10 +227,13 @@ def sendData( localPath, buckName=None, forwardWrite=24):
 
 						if durationInSeconds > OneAndHalfDay and len(imageNameList) > 0:
 							try:
+								print("LONGER THAN ONE DAY deleting {0}".format(imagekey))
 								b.delete_key(imagekey)
-								#os.remove(deleteFilePath)
+								os.remove(deleteFilePath)
 							except Exception as e:
 								print ("Exception in deleting key: {0} - {1}".format(imagekey, e))
+						else:
+							print("WITHIN ONE DAY {0}".format(imagekey))
 
 			os.path.walk(topdir, step, exten)
 

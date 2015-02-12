@@ -10,7 +10,7 @@ import re
 import time, articleUtil
 from threading import Thread
 
-
+# find this image http://www.theatlantic.com/features/archive/2015/02/consent-isnt-enough-in-fifty-shades-of-grey/385267/ 
 
 def findTopCommentAndTopNumber(self, url,isFirstPage ,WAIT_SECONDS):
 
@@ -23,6 +23,7 @@ def findTopCommentAndTopNumber(self, url,isFirstPage ,WAIT_SECONDS):
     resultDict = {}
     ##CHANGE
     ##VOTEUP_CRITERIA = 8
+    #DIVIDER = 3
     VOTEUP_CRITERIA = 2
     ##CHANGE
     ##COMMENT_NUM_CRITERIA = 65
@@ -37,17 +38,17 @@ def findTopCommentAndTopNumber(self, url,isFirstPage ,WAIT_SECONDS):
         print "Exception fail to click .welcome-lightbox-continue"
 
     title = ''
-    try:
-        ##headline
-        elm = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR,".headline")))
-        titleText = elm.text
-        if isinstance(titleText, basestring):
-            title = titleText.strip()
-   
-    except (NoSuchElementException, TimeoutException) as e:
-        print "#################### Exception Title1: {}".format(e)
-    except Exception as e:
-        print "#################### Exception Title2: {}".format(e)
+    for cssPath in [".headline",".hed"]:
+        try:
+            ##headline
+            elm = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR,cssPath)))
+            if elm:
+                title = elm.text.strip()
+                break
+
+        except Exception as e:
+            print "#################### Exception Title2: {}".format(e)
+
 
     if len(title) < 3:
         return resultDict

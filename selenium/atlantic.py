@@ -84,7 +84,7 @@ class FrontAtlantic(unittest.TestCase):
                 #print ""
                 continue
 #cssXpaths=[common_classes.CSSXPATH(".row-image", "style", "css")] , webElement=imageElm)
-            isSuccess = imageUtil.imageProcedure(self.driver, topCommentDict['title'], cssXpaths=[common_classes.CSSXPATH(".photo>img", "src", "css")])
+            isSuccess = imageUtil.imageProcedure(self.driver, topCommentDict['title'], cssXpaths=[common_classes.CSSXPATH(".photo>img", "src", "css"), common_classes.CSSXPATH("article.article style", "get_text", "css")])
 
             if not isSuccess:
                 print("Error in atlantic imageUtil imageProcedure")
