@@ -141,11 +141,11 @@ for article in pages[:]:
 	print "FINAL URL %s" % article.tag
 
 
-	if len(article.title) > 2 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10:
+	if isSuccess and article.img and article.topComment and article.age and article.topCommentNum and article.url and len(article.title) > 2 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10:
 
 		isSuccess = imageUtil.imageProcedure(browser, article.title, cssXpaths=[common_classes.CSSXPATH("article .a-image img", "src", "css"), common_classes.CSSXPATH("article .ndn_startOverlayContainer.ndn_playerOverlay .backstretch>img", "src", "css")])
 		article.img = imageUtil.imageTitlePathJPG(article.title)
-		if isSuccess and len(article.img) > 2:
+		if isSuccess and article.img and len(article.img) > 2:
 			rowElements.append(article)
 
 	else:

@@ -55,13 +55,18 @@ def findTopCommentAndTopNumber(self, url,isFirstPage ,WAIT_SECONDS):
 
     timeStamp = None
 
-    try:
-        _time = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH,"//time[@itemprop='datePublished']")))
-        timeStamp = atlantic_time.timeToTimeStamp(_time.get_attribute("datetime"))
-        print "timeStamp: %s" % timeStamp
-    except Exception as e:
-        print "NoSuchElementException /TimeoutException //time[@itemprop='datePublished'] %s " % e
-        return resultDict
+
+    ## interesting XPATH matching technique
+    ##_time = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH,"//time[@itemprop='datePublished']")))
+
+    for time_css_selector in ["time"]:
+        try:
+            _time = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR,"time")))
+            timeStamp = atlantic_time.timeToTimeStamp(_time.get_attribute("datetime"))
+            if timeStamp and timeStamp > 1000:
+                break
+        except Exception as e:
+            print "timeError can't find the element %s " % e
 
     if timeStamp is None or timeStamp < 1000:
         print "*****************ERROR Timestamp Error"

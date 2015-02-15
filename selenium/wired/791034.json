@@ -1,0 +1,24 @@
+{
+ "wired": [
+  {
+   "img": "i/e-of-Iron.jpg", 
+   "title": "The Badass Snail That Has a Shell Made of Iron", 
+   "url": "http://www.wired.com/2015/02/absurd-creature-of-the-week-scaly-foot-snail/", 
+   "age": 1423789417, 
+   "topComment": "\"...making the scaly-foot snail more metal than Ozzy Osbourne wrapped in tin foil.\" and \"So not only is the snail clad in badass armor, it’s armor is made out of poisons. Good god that’s metal as hell.\"\nExcellent writing. Entertaining and informative...", 
+   "tag": "science", 
+   "topCommentNum": 15, 
+   "numComments": 28
+  }, 
+  {
+   "img": "i/tire-Room.jpg", 
+   "title": "A Pixar-Inspired Projector That Beams VR Into an Entire Room", 
+   "url": "http://www.wired.com/2015/02/pixar-inspired-projector-beams-vr-entire-room/", 
+   "age": 1423792841, 
+   "topComment": "Didn't microsoft demonstrate this same type of technology running off of a kinect a few years ago... with the built in 3-d mapping?", 
+   "tag": "design", 
+   "topCommentNum": 10, 
+   "numComments": 22
+  }
+ ]
+}

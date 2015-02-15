@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
-import guardian_comment, timeHelper, common_classes, jsonHelper, re, imageUtil
+import guardian_comment, timeHelper, common_classes, jsonHelper, re, imageUtil, time
 from urlparse import urlparse
 
 
@@ -49,6 +49,8 @@ class PythonOrgSearch(unittest.TestCase):
         try:
             ##WebDriverWait(self.driver, 60).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".js-item__comment-count")))
             headlines = WebDriverWait(self.driver, 60).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.fc-item__container')))[0:12]
+
+            time.sleep(TIME_WAIT*2)
         except Exception as e:
             print "WARNING: Expected containers: %s" % e
             return
@@ -78,7 +80,10 @@ class PythonOrgSearch(unittest.TestCase):
             textTitle = None
 
             try:
-                commentNum = container.find_element_by_css_selector(".js-item__comment-count").text.strip()
+
+                ##fc-trail__count
+                commentNum = container.find_element_by_css_selector(".fc-trail__count").text.strip()
+                #commentNum = container.find_element_by_css_selector(".js-item__comment-count").text.strip()
 
                 numStr = re.sub(r'\D',"",commentNum)
 
@@ -122,7 +127,7 @@ class PythonOrgSearch(unittest.TestCase):
             isFirstPage = False
             thePage.img = imageUtil.imageTitlePathJPG(thePage.title)
 
-            if isSuccess and len(thePage.img) > 1 and len(thePage.title) > 2 and thePage.numComments > 5 and len(thePage.url) > 2 and len(thePage.topComment) > 2 and thePage.topCommentNum > 2 and thePage.age > 1 and len(thePage.tag) > 1:
+            if isSuccess and thePage.img and thePage.topComment and thePage.age and thePage.topCommentNum and thePage.url and len(thePage.img) > 1 and len(thePage.title) > 2 and thePage.numComments > 5 and len(thePage.url) > 2 and len(thePage.topComment) > 2 and thePage.topCommentNum > 2 and thePage.age > 1 and len(thePage.tag) > 1:
                 rowElements.append(thePage)
 
 

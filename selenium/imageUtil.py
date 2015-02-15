@@ -25,15 +25,24 @@ def matchURLEndJPG(url):
 		return url
 
 
-#http://stackoverflow.com/questions/19532125/cant-install-pil-after-mac-os-x-10-9
+
+
+##strip https and anything about http request
+##eg. 
+##http://stackoverflow.com/questions/19532125/cant-install-pil-after-mac-os-x-10-9
+##repace the non alphabet symbols with '-'
+##replace the with ending with any non alphabet symbol.
+
+
 def imageURLformatter(url, maxStringLength=9):
+	print("imageURLFormatter")
 	urlStr = re.sub(r'^h?t?t?p?s?\:?\/?\/',"", url.strip(), re.I)
-	print (urlStr)
+	#print (urlStr)
 	urlLen = len(urlStr) - maxStringLength
 	dashURL = re.sub(r'[^\w]',"-", urlStr[urlLen:])
-	print (dashURL)
+	#print (dashURL)
 	fURL = re.sub(r'[^\w]+$', "", dashURL)
-	print(fURL)
+	#print(fURL)
 	return fURL
 
 
@@ -52,7 +61,11 @@ def imageURLformatter(url, maxStringLength=9):
 	#https://docs.python.org/2/library/imghdr.html
 
 def imageTitlePathJPG(title):
-		return "i/{0}{1}".format(imageURLformatter(title), '.jpg')
+	urlTitle = imageURLformatter(title)
+	print("urlTitle: {0}".format(urlTitle))
+	_urlTitle = "i/{0}{1}".format( urlTitle , '.jpg')
+	print("final URLTitle: {0}".format(_urlTitle))
+	return _urlTitle
 
 def imageTitlePathWithSupportType(title, ext):
 		searchObj = re.search( r'(jpg|jpeg|png|gif)', ext, re.I)
@@ -160,21 +173,22 @@ def isImageExistLocally(title):
 	if not len(imgTitle) > 1:
 		return isMatch
 
-	IMAGE_PATH = s3Interface.imagePath()
-	topdir = ".{0}".format(IMAGE_PATH)
+	IMAGE_DIR_PATH = s3Interface.absoluteImagePath()
+	##topdir = ".{0}".format(IMAGE_PATH)
 	
 	def step(ext, dirname, names):
 		global isMatch
-		for name in names:
+		for name in names[:]:
 			print("imageTitle: {0} name: {1}".format(imgTitle, name))
-			if imgTitle in name:
+			if imgTitle.lower() in name.lower():
 				isMatch = True
+				print("MATCH imageTitle: {0} name: {1}".format(imgTitle, name))
 				#print("isMatch 1:  {0}".format(isMatch))
 				return isMatch
 		#print("isMatch 2:  {0}".format(isMatch))				
 		return isMatch
 
-	os.path.walk(topdir, step, 'jpg')
+	os.path.walk(IMAGE_DIR_PATH, step, 'jpg')
 	#print("isMatch 4: {0}".format(isMatch))
 
 	return isMatch

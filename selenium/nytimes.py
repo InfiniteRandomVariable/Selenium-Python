@@ -205,10 +205,11 @@ for article in pages[:]:
 	print("return from getImageAndSave")        
 	article.img = imageUtil.imageTitlePathJPG(article.title)
 
-	if isSuccess and len(article.img) > 1 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10 and article.topCommentNum > MIN_LIKES:
+	if isSuccess and article.img and article.topComment and article.age and article.topCommentNum and article.url and len(article.img) > 1 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10 and article.topCommentNum > MIN_LIKES:
 		rowElements.append(article)
 	else:
-		print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s article.topCommentNum %s " %( article.title,article.topComment, article.url, article.age, article.topCommentNum)
+		print("WARNING: fail to meet one of the requirement for url: {0}".format(article.url))
+		#print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s article.topCommentNum %s " %( article.title,article.topComment, article.url, article.age, article.topCommentNum)
 		pass
 
 

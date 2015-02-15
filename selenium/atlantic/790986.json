@@ -1,0 +1,24 @@
+{
+ "atlantic": [
+  {
+   "img": "i/irst-Lady.jpg", 
+   "title": "Just Blame the First Lady", 
+   "url": "http://www.theatlantic.com/politics/archive/2015/02/oregon-John-Kitzhaber-resignation-Cylvia-Hayes/385436/", 
+   "age": 1423764781, 
+   "topComment": "how is it blaming the woman if she was in a sham marriage and shady gov. deals and that's what brought down the governor?", 
+   "tag": "politics", 
+   "topCommentNum": 10, 
+   "numComments": 89
+  }, 
+  {
+   "img": "i/nt-Design.jpg", 
+   "title": "A Failed Metaphor for Intelligent Design", 
+   "url": "http://www.theatlantic.com/technology/archive/2015/02/god-watchmakers-and-the-short-half-lfe-of-technology-metaphors/385408/", 
+   "age": 1423753842, 
+   "topComment": "Nice story, but just for the record... Some of us who own some high-end Swiss wrist jewelry actually own our watches out of a reverence for the craftsmanship and ingenuity that makes tiny machines tell time, dates, days, and even moon phases. Althoug...", 
+   "tag": "technology", 
+   "topCommentNum": 15, 
+   "numComments": 112
+  }
+ ]
+}

@@ -24,6 +24,9 @@ MAX_IMAGE_SIZE = 100000
 MIN_IMAGE_SIZE = 5000
 #TEMP_PATH = 'guardian/1420592.json'
 
+def absoluteImagePath():
+	return "{0}{1}".format(jsonHelper.getCompleteFilePath(), imagePath())
+
 def imagePath():
 	return IMAGE_PATH
 
@@ -53,7 +56,9 @@ def readCred():
 def sendData( localPath, buckName=None, forwardWrite=36):
 	
 	#thelocalPath = "{0}".format( localpath )
-	#print "localPath 1 %s" % localPath
+	##print "localPath 1 %s" % localPath
+
+	
 
 	if not buckName or len(buckName) < 1:
 		buckName = BUCKET_NAME
@@ -100,7 +105,8 @@ def sendData( localPath, buckName=None, forwardWrite=36):
 
 		if IMAGE_PATH in localPath:
 		 	##image Operation
-		 	topdir = '.{0}'.format(IMAGE_PATH)
+
+		 	topdir = '{0}'.format(localPath)
 		# 	# The arg argument for walk, and subsequently ext for step
 			exten = '.jpg'
 			#imageNameList = [v.name[len("images/"):] for v in list(b.list("images/", "/"))]
@@ -192,6 +198,7 @@ def sendData( localPath, buckName=None, forwardWrite=36):
 					elif name.lower().endswith(ext) is True and nameInTheList:
 						try:
 							pathToImageFile = "{0}/{1}".format(localPath,name)
+							print("REMOVE file attemp: {0}".format(pathToImageFile))
 							os.remove(pathToImageFile)
 						except Exception as e:
 							print("Exception deleting image 0.1: {0} - {1}".format(name, e))

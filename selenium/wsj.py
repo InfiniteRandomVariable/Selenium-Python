@@ -35,8 +35,8 @@ POPULARS = '.headlineSummary.trendingNow .newsItem>li'
 
 
 #num of reviews text
-#NUM_REVIEWS = '.fyre-comment-count>span'
-NUM_REVIEWS ='.comments_header'
+NUM_REVIEWS2 = '.fyre-comment-count>span'
+NUM_REVIEWS1 ='.comments_header'
 
 #ID
 #grab the first avaiable row
@@ -87,6 +87,8 @@ except Exception as e:
 
 isFirstPage = True
 
+print("Total Articles: {0}".format(len(pages)))
+
 for article in pages[:]:
 
 	
@@ -95,22 +97,22 @@ for article in pages[:]:
 	
 	browser.get(url)
 	#if isFirstPage == False:
-	time.sleep(WAIT_SECONDS * 2)
+	time.sleep(WAIT_SECONDS * 4)
 	#isFirstPage = False
 
+	for cssPath in [NUM_REVIEWS2]:
 
-	try:
-		numComments = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, NUM_REVIEWS))).text.strip()
-		article.numComments = int(re.search( r'(\d+)\s', numComments).group().strip())
-		print "numComments %s " % article.numComments
-		
-		if article.numComments < MIN_COMMENT_NUM:
-			print "CONTINUE: %s " % article.numComments
-			continue
-	except Exception as e:
-		print('Exception WSJ2 {0}'.format(e))
+		try:
+			numComments = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR,cssPath))).text.strip()
+			article.numComments = int(re.search( r'(\d+)\s', numComments).group().strip())
+			print "numComments %s " % article.numComments
+			break
+		except Exception as e:
+			print('Exception WSJ2 {0}'.format(e))
+
+	if article.numComments < MIN_COMMENT_NUM:
+		print "CONTINUE: %s " % article.numComments
 		continue
-
 
 
 	#"clickHandler: function (self, $el)"
@@ -184,16 +186,23 @@ for article in pages[:]:
 
 	print("about to call getImageAndSave")
 	isSuccess = imageUtil.imageProcedure(browser, article.title, [common_classes.CSSXPATH(".vidThumb", "style", "css"), common_classes.CSSXPATH(".image-container img", "src", "css"), common_classes.CSSXPATH(".wsj-slideshow-image", "data-in-large-data-lazy", "css")])
-	print("return from getImageAndSave")        
-	article.img = imageUtil.imageTitlePathJPG(article.title)	
+	print("return from getImageAndSave {0}".format(isSuccess))        
+	article.img = imageUtil.imageTitlePathJPG(article.title)
+	print ("article.img {0}".format(article.img))
 
+	try:
 
-	if isSuccess and len(article.img) > 1 and len(article.title) > 2 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10:
-		print('added: {0}'.format(article.title))
-		rowElements.append(article)
-	else:
-		print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s " %( article.title,article.topComment, article.url, article.age)
-		pass
+		#minNumComments=2, minTopCommentNum=2
+		isSuccessArticle = articleUtil.checkArticle(article, minTopCommentNum=-1)
+		if isSuccess and isSuccessArticle:
+			print("added")
+			rowElements.append(article)
+		else:
+			print("failed url: {0}".format(article.url))
+			articleUtil.printArticle(article)
+			pass
+	except Exception as e:
+		print("Exception final {0}".format(e))
 		
 jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),rowElements,"wsj",1)
 browser.quit()
