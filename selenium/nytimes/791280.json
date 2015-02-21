@@ -1,0 +1,44 @@
+{
+ "nytimes": [
+  {
+   "img": "i/tive-Care.jpg", 
+   "title": "Doctors Strive to Do Less Harm by Inattentive Care", 
+   "url": "http://www.nytimes.com/2015/02/18/health/doctors-strive-to-do-less-harm-by-inattentive-care.html", 
+   "age": 1424149200, 
+   "topComment": "Ok, let's get scientific about this. Doctors need surveys to find out how and why their patients suffer. Right? Now wait a minute.\n\nNowhere in this article did I read how doctors have put stock in what nurses have tried to tell them or how nurses imp...", 
+   "tag": "health", 
+   "topCommentNum": 535, 
+   "numComments": 658
+  }, 
+  {
+   "img": "i/-Withdraw.jpg", 
+   "title": "A Bloody Retreat From Debaltseve as Ukrainian Forces Suddenly Withdraw", 
+   "url": "http://www.nytimes.com/2015/02/19/world/europe/ukraine-conflict-debaltseve.html", 
+   "age": 1424235599, 
+   "topComment": "For journalistic accuracy, shouldn't the article use the correct terms \"invading Russians\" and \"invading Russian army\" rather than \"separatists,\" which confuses the issue and is just a PC term for \"Russian invaders?\" The NY Times owes no courtesies t...", 
+   "tag": "europe", 
+   "topCommentNum": 224, 
+   "numComments": 783
+  }, 
+  {
+   "img": "i/rant-Plan.jpg", 
+   "title": "Dealt Setback, Obama Puts Off Immigrant Plan", 
+   "url": "http://www.nytimes.com/2015/02/18/us/obama-immigration-policy-halted-by-federal-judge-in-texas.html", 
+   "age": 1424149198, 
+   "topComment": "The Texas AG and the district court in Brownsville are confused. The president is perfectly justified and authorized to set policy on immigration. The judge's opinion that \"the government has failed to secure the border\" is outlandish. Rather than em...", 
+   "tag": "us", 
+   "topCommentNum": 549, 
+   "numComments": 1400
+  }, 
+  {
+   "img": "i/l-Assault.jpg", 
+   "title": "In Bid to Allow Guns on Campus, Weapons Are Linked to Fighting Sexual Assault", 
+   "url": "http://www.nytimes.com/2015/02/19/us/in-bid-to-allow-guns-on-campus-weapons-are-linked-to-fighting-sexual-assault.html", 
+   "age": 1424235597, 
+   "topComment": "Anyone who used the words \"hot little girls\" to describe women at institutions of higher learning has lost any credibility in creating policies designed to reduce rape.", 
+   "tag": "us", 
+   "topCommentNum": 1020, 
+   "numComments": 1263
+  }
+ ]
+}

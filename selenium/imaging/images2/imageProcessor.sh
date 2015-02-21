@@ -6,6 +6,7 @@
 #BASE="./imaging/images"
 
 echo "number of args: $#"
+USER_PATH='/usr/local/bin/'
 
 if ( [ "$#" -eq 1 ] ) ; then
 	BASE=$1
@@ -23,26 +24,37 @@ do
 	#defaultWidth=620
 	#defaultHeight=420
 
-  	if [ "$img" != "imageProcessor.sh" ] ; then
+  	if [ "$img" != "$BASE/imageProcessor.sh" ] ; then
 
   		##convert lab.tif -resize 50% resize.jpg
   		echo
   		echo
   		echo "START $img"
-  		imagePath="$BASE/$img"
+  		# imagePath="$BASE/$img"
+  		imagePath="$BASE"'/'"$img"
+  		echo 'START imagePath '"$imagePath"
   		#magickCommand='convert '"$BASE/$img"
 		#theType=`identify -format "%m %wx%h" $BASE/$img`
 
-  		magickCommand='convert '"$imagePath"
-		theType=`identify -format "%m %wx%h" $imagePath`
+  		magickCommand="$USER_PATH"'convert '"$imagePath"
+  		# http://stackoverflow.com/questions/4651437/how-to-set-a-bash-variable-equal-to-the-output-from-a-command
+  		theType="$("$USER_PATH"identify -format '%m %wx%h' "$imagePath")"
+  		
 
-		echo "identify: $theType"
+		#theTypeCommand=(identify -format "%m %wx%h" "$imagePath")
+		#echo 'theTypeCommand: '"$theTypeCommand"
+		#_theType="${theTypeCommand[@]}"
+		#theType=$_theType
+		echo "identify1: $theType"
+		echo "identify2: ${theType}"
+#http://stackoverflow.com/questions/11079342/execute-command-containing-quotes-from-shell-variable
 
 		fileNameJPG=""
 		NO='NO'
 		YES='YES'
 		error=''
-		
+		#error='CHANGE LATER'
+
 		##echo $a | tr '[:upper:]' '[:lower:]'
 		didUpload=`[[ $img =~ ^.*(uploaded) ]] && echo ${BASH_REMATCH[1]}`
 
@@ -85,9 +97,11 @@ do
 
 	  	
 
+	  	if [ -z "$error" ] && [ "$imageWidth" -lt 300 ] && [ "$imageHeight" -lt 300 ] ; then
+			## "Landscape"
+			magickCommand=$magickCommand' -gravity center -background white -extent '"$defaultWidth"'x'"$defaultHeight"' -crop '"$defaultWidth"'x'"$defaultHeight"' '"$BASE/$fileNameJPG"
 
-
-		if [ -z "$error" ] && [  "$imageWidth" -eq "$imageHeight" ] && [ "$imageWidth" -ge 100 ] ; then
+		elif [ -z "$error" ] && [  "$imageWidth" -eq "$imageHeight" ] && [ "$imageWidth" -ge 300 ] ; then
 			##"Square"
 			magickCommand=$magickCommand' -resize '"$defaultWidth"'x -gravity center -background white -extent '"$defaultWidth"'x'"$defaultHeight"' -crop '"$defaultWidth"'x'"$defaultHeight"' '"$BASE/$fileNameJPG"
 

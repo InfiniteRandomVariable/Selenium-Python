@@ -76,15 +76,16 @@ try:
 			numReviewElm = WebDriverWait(row, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR,NUM_REVIEW )))
 			
 			book.numComments = int(re.sub(r'[^\d]', '', numReviewElm.text))
+
 			book.tag = numReviewElm.get_attribute('href').strip()
 
 			author = row.find_element_by_css_selector(AUTHOR).text.strip()
 			book.title = "Book Release: %s %s" % (elm.text.strip(), author) 
 
-			print "TITLE %s" % book.title
-
+			print("TITLE: {0} Comment: {1}".format(book.title, book.numComments))
 			rowNum = rowNum + 1
-			books.append(book)
+			if book.numComments > MIN_COMMENT_NUM:
+				books.append(book)
 		except Exception as theE:
 			print "Exception: failure in amz0 %s" % theE
 
@@ -98,22 +99,29 @@ for book in books[:]:
 
 	try:
 		#print "6"
+		print("find new book")
 		browser.get(book.url)
 		time.sleep(WAIT_SECONDS)
 
+		print("find new book 1")
 		reviewSectionElm = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.ID,"revMHRL")))
 		if not reviewSectionElm:
 			continue
+		print("find new book 2")
+
 		commentElm = reviewSectionElm.find_element_by_css_selector(".MHRHead")
+		print("find new book 3")
 		if not commentElm:
 			continue
 
+		print("find new book 4")
 		comment = re.sub(r'\<br\/\>*', '', commentElm.text)
 
 		if not comment or len(comment) < 2:
 			print("Error comment {0}".format(comment))
 			continue
 
+		print("find new book 5")
 		titleElm = reviewSectionElm.find_element_by_css_selector(".a-size-base.a-text-bold")
 		if not titleElm:
 			continue
@@ -133,6 +141,9 @@ for book in books[:]:
 
 
 		#download the image
+
+		print("find new book 6")
+
 		WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'#imgThumbs .a-color-link'))).click()
 		#igImage
 
@@ -145,72 +156,24 @@ for book in books[:]:
 
 
 
-
-
-
-
-		# if isFirstPage == False:
-		# 	time.sleep(WAIT_SECONDS)
-		# isFirstPage = False				
-		# #print "7"
-		# firstReview = WebDriverWait(browser, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, REVIEWS)))
-
-
-
-	#text and extract the number by regex
-	#eg. str ='1,229 of 1,267 people found the following review helpful by minus'
-
-		# try:
-		# 	reviewRating = firstReview.find_element_by_xpath('div[1]').text.strip().split()
-		# 	if len(reviewRating) > 2:
-		# 		likeStr = reviewRating[0]
-		# 		totalStr = reviewRating[2]
-		# 		likesAndreplacedNonNumeric = re.sub(r'[^0-9]*', "", likeStr)
-		# 		totalLikesAndreplacedNonNumeric = re.sub(r'[^0-9]*', "", totalStr)
-		# 		book.topCommentNum = int(likesAndreplacedNonNumeric)*2 - int(totalLikesAndreplacedNonNumeric)
-		# 	else:
-		# 		print "ERROR in converting topcommentnum"
-		# 		continue
-		# except Exception as e:
-		# 	print "Exception0: %s" % e
-
-
-		# book.topCommentNum = 0
-
-		# topComment = ''
-		# try:
-		# 	com = firstReview.find_element_by_xpath('div[2]/span[2]/b').text.strip()
-		# 	print "COM: %s" % com
-		# 	topComment =  re.sub(r'\\\"', '"', com)
-		# 	print "TOP COMMENT: %s" % topComment
-
-		# except Exception as e:
-		# 	print "Exception1: %s" % e
-
-		# reviewText = ''
-		# try:
-		# 	reviewText = firstReview.find_element_by_css_selector('.reviewText').text
-		# except Exception as e:
-		# 	print "Exception2: %s" % e
-
-
 		tComSize = len(title)
 		rTextSize = len(comment)
 		##if(len(reviewText) > 98):
-
+		print("make title 0")
 		if tComSize > 3 and rTextSize > 3:	
-			book.topComment = "%s - %s" %(title, comment)
+			book.topComment = "{0} - {1}".format(title, comment)
 		elif tComSize > 3:
 			book.topComment = title
 		elif rTextSize > 3:
 			book.topComment = comment
-
+		print("make title 1")
 		book.topComment = articleUtil.truncatedStringForRow(book.topComment);
 
 		book.tag = TAG
 
 		book.age = 10000
 
+		print("make title 2")
 		if isSuccess and len(book.img) > 1 and len(book.title) > 2 and len(book.topComment) > 3 and len(book.url) > len(BASE) and book.numComments > MIN_COMMENT_NUM and book.age > 10:
 			rowElements.append(book)
 

@@ -1,0 +1,34 @@
+{
+ "atlantic": [
+  {
+   "img": "i/ho-Is-He.jpg", 
+   "title": "If Jeb Bush Isn't George W. Bush, Who Is He?", 
+   "url": "http://www.theatlantic.com/politics/archive/2015/02/if-jeb-bush-isnt-george-w-bush-who-is-he/385616/", 
+   "age": 1424295000, 
+   "topComment": "So more Reaganomics tax cuts for the 0.01%: check. Increases in our already ridiculous military spending: check.", 
+   "tag": "politics", 
+   "topCommentNum": 6, 
+   "numComments": 38
+  }, 
+  {
+   "img": "i/cruitment.jpg", 
+   "title": "Outfits Aren’t the Biggest Problem With Sorority Recruitment", 
+   "url": "http://www.theatlantic.com/education/archive/2015/02/outfits-arent-the-biggest-problem-with-sorority-recruitment/385583/", 
+   "age": 1424278800, 
+   "topComment": "An unapologetic feminist that writes about beauty standards, hair-flipping and the dangers of high heels in sororities. Maybe young women in college should be more concerned with earning good grades in competitive, productive majors and learning the ...", 
+   "tag": "education", 
+   "topCommentNum": 18, 
+   "numComments": 37
+  }, 
+  {
+   "img": "i/an-Party.jpg", 
+   "title": "Can Labor Survive Nevada's Republican Party?", 
+   "url": "http://www.theatlantic.com/business/archive/2015/02/can-labor-survive-nevadas-republican-party/385578/", 
+   "age": 1424277289, 
+   "topComment": "Talk about voting against one's interests. When I see that parties like this gain power and at the same time, people are complaining about low wages, poor working conditions, and other problems, I wonder, what are people thinking when they voted for ...", 
+   "tag": "business", 
+   "topCommentNum": 35, 
+   "numComments": 139
+  }
+ ]
+}

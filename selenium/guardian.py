@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
-import guardian_comment, timeHelper, common_classes, jsonHelper, re, imageUtil, time
+import guardian_comment, timeHelper, common_classes, jsonHelper, re, imageUtil, time, articleUtil
 from urlparse import urlparse
 
 
@@ -124,22 +124,19 @@ class PythonOrgSearch(unittest.TestCase):
             #isSuccess = imageUtil.imageProcedure(browser, article.title, [common_classes.CSSXPATH(".image img", "src", "css"), common_classes.CSSXPATH("img.media-viewer-candidate", "src", "css")])
             isSuccess = imageUtil.imageProcedure(self.driver, thePage.title, cssXpaths=[common_classes.CSSXPATH("img.maxed.responsive-img", "src", "css"), common_classes.CSSXPATH("video", "poster", "css")])
             #isSuccess = guardian_comment.findImage(self , thePage.title)
-            isFirstPage = False
+            #isFirstPage = False
             thePage.img = imageUtil.imageTitlePathJPG(thePage.title)
 
-            if isSuccess and thePage.img and thePage.topComment and thePage.age and thePage.topCommentNum and thePage.url and len(thePage.img) > 1 and len(thePage.title) > 2 and thePage.numComments > 5 and len(thePage.url) > 2 and len(thePage.topComment) > 2 and thePage.topCommentNum > 2 and thePage.age > 1 and len(thePage.tag) > 1:
+
+            if isSuccess and articleUtil.checkArticle(thePage):
+                print("added")
                 rowElements.append(thePage)
+            else:
+                print("Fail to add: {0}".format(thePage.url))
 
 
             print "FINAL###########################################################"
-            print "title %s " % thePage.title
-            print "numComments %s " % thePage.numComments
-            print "url %s " % thePage.url 
-            print "topComment %s " % thePage.topComment
-            print "topCommentNum %s " % thePage.topCommentNum
-            print "age %s " % thePage.age
-            print "tag %s " % thePage.tag
-            print "img %s " % thePage.img
+
 
         print "final 0"
         timeHelper.sortTimeForGuardian(rowElements)

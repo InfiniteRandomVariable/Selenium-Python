@@ -38,16 +38,21 @@ def findTopCommentAndTopNumber(self, url,isFirstPage ,WAIT_SECONDS):
         print "Exception fail to click .welcome-lightbox-continue"
 
     title = ''
-    for cssPath in [".headline",".hed"]:
+    template = ''
+    HEADLINE = ".headline"
+    HED = ".hed"
+    print("pre 3")
+    for cssPath in [HEADLINE,HED]:
         try:
             ##headline
             elm = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR,cssPath)))
             if elm:
+                template = cssPath
                 title = elm.text.strip()
                 break
 
         except Exception as e:
-            print "#################### Exception Title2: {}".format(e)
+            print "#################### Exception problem Title2: {}".format(e)
 
 
     if len(title) < 3:
@@ -58,11 +63,14 @@ def findTopCommentAndTopNumber(self, url,isFirstPage ,WAIT_SECONDS):
 
     ## interesting XPATH matching technique
     ##_time = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH,"//time[@itemprop='datePublished']")))
-
+    print("pre 4")
     for time_css_selector in ["time"]:
         try:
             _time = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR,"time")))
             timeStamp = atlantic_time.timeToTimeStamp(_time.get_attribute("datetime"))
+
+            print("TimeStamp: {}".format(timeStamp))
+
             if timeStamp and timeStamp > 1000:
                 break
         except Exception as e:
@@ -73,17 +81,24 @@ def findTopCommentAndTopNumber(self, url,isFirstPage ,WAIT_SECONDS):
         return resultDict
 
 ##.jump-to-comments>a
-
+    print("pre 5")
     try:
-        elm = WebDriverWait(self.driver, 30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,".jump-to-comments>a")))
+        elm = None
+
+        if template == HEADLINE:
+            elm = WebDriverWait(self.driver, 30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,".jump-to-comments>a")))
+        elif template == HED:
+            elm = WebDriverWait(self.driver, 30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,".social-icon.comments")))
+
         elm.click()
     except Exception as e:
         self.driver.switch_to.default_content();
         print "####################### EXCEPTION just to comment"
         return
 
-    
+    print("pre 6")
     ##self.driver.switch_to.frame("dsq-2")
+    time.sleep(WAIT_SECONDS)
     try:
         frame = WebDriverWait(self.driver, 30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,"iframe#dsq-2")))
         self.driver.switch_to.frame(frame)
@@ -92,24 +107,27 @@ def findTopCommentAndTopNumber(self, url,isFirstPage ,WAIT_SECONDS):
         return resultDict
     comNum = 0
     ##.comment-count
+
+    print("pre 7")
+
     try:      
         elm = WebDriverWait(self.driver, 30).until(EC.presence_of_element_located((By.CSS_SELECTOR,".comment-count")))
         text = elm.text
         print "Time Text %s" % text
-        if isinstance(text, basestring) and len(text) > 0:
-            numText = re.search( r'^\d+\S', text)
-            print "numText: %s" % numText.group()
-            try:
-                comNum = int(numText.group())
-            except Exception:
-                print "**************EXCEPTION comment Number"
+        numText = re.search( r'\d+[^\S]', text)
+        print "numText: %s" % numText.group()
+        try:
+            comNum = int(numText.group().strip())
+        except Exception:
+            print "**************EXCEPTION comment Number"
     except Exception as e:
-        print "############################# EXCEPTION comment count %s" % e
+        print "############################# EXCEPTION problem comment count %s" % e
 
     if comNum < COMMENT_NUM_CRITERIA:
         self.driver.switch_to.default_content();
         return resultDict
 
+    print("pre 8")
     ##//a[@href='#disqus_thread']
     ##.dropdown-toggle
     ##try
@@ -127,6 +145,7 @@ def findTopCommentAndTopNumber(self, url,isFirstPage ,WAIT_SECONDS):
         return resultDict
 
 
+    print("pre 9")
 
     try:
         WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.XPATH,"//a[@data-sort='popular']"))).click()
@@ -136,8 +155,8 @@ def findTopCommentAndTopNumber(self, url,isFirstPage ,WAIT_SECONDS):
         return resultDict
 
     ##a data-role="username"
-    print "TIME SLEEP"
-    time.sleep(3)
+    print("pre 10")
+    time.sleep(5)
     ##.updatable.count
     topCommentNumber = 0
     try:
@@ -174,21 +193,32 @@ def findTopCommentAndTopNumber(self, url,isFirstPage ,WAIT_SECONDS):
 
     topComment = ''
 
+    print("pre 10")
 
     try:
         firstComment = WebDriverWait(self.driver, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR,".post-message")))
         
-        elms = firstComment.find_elements_by_css_selector('p')
+        elms = firstComment.find_elements_by_css_selector('p')[0:2]
         for elm in elms[:]:
-            topComment = topComment + ' ' + elm.text
+            if not elm.text:
+                try:
+                    _elm = elm.find_element_by_css_selector('i')
+                except Exception as ee:
+                    print("Exception: {0}".format(ee))
+                if _elm.text:
+                    topComment = topComment + ' ' + _elm.text
+            else:
+                topComment = topComment + ' ' + elm.text
+            #print("topComment1: {0}".format(topComment))
 
     except Exception as e:
-        print "NoSuchElementException /TimeoutException .content__dateline>time"
+        print("Except: fail to find this element {0}".format(e))
         self.driver.switch_to.default_content();
         return resultDict
 
-
+    #print("topComment2: {0}".format(topComment))
     topComment = re.sub(r'\\', "",topComment.strip())
+    #print("topComment3: {0}".format(topComment))
 
     if len (topComment) < 10:
         print "top comment"

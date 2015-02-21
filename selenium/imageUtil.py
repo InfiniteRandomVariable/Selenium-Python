@@ -13,6 +13,8 @@ from selenium.webdriver.support import expected_conditions as EC # available sin
 import s3Interface
 
 
+#MIN_IMAGE_SIZE = 5000
+
 ##require contain jpg or jpeg in the file 
 def matchURLEndJPG(url):
 	searchObj = re.search(r'.+?(?=\.jpe?g)', url , re.I)

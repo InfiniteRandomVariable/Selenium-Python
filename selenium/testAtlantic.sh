@@ -19,6 +19,10 @@ echo "############################Wired START NEXT PROCESS 2####################
 sh $BASE_COMMAND start wired
 echo "############################WSJ START NEXT PROCESS 3##############################"
 sh $BASE_COMMAND start wsj
+echo "############################IMAGING PROCESS##############################"
+sh $BASE_IMAGE_COMMAND $BASE_IMAGE_PATH > "$BASE_IMAGE_LOG"
+echo "############################PYTHON PROCESS ##############################"
+sh $BASE_IMAGE_MANAGER $BASE >> "$BASE_IMAGE_LOG"
 echo "############################youTube START NEXT PROCESS 4##############################"
 sh $BASE_COMMAND start youTube
 echo "############################RottenTomatoes START NEXT PROCESS 5##############################"
@@ -29,6 +33,10 @@ echo "############################Hulu START NEXT PROCESS 8#####################
 sh $BASE_COMMAND start hulu
 echo "############################Guardian START NEXT PROCESS 9##############################"
 sh $BASE_COMMAND start guardian
+echo "############################IMAGING PROCESS##############################"
+sh $BASE_IMAGE_COMMAND $BASE_IMAGE_PATH > "$BASE_IMAGE_LOG"
+echo "############################PYTHON PROCESS ##############################"
+sh $BASE_IMAGE_MANAGER $BASE >> "$BASE_IMAGE_LOG"
 echo "############################Bloomberg START NEXT PROCESS 10##############################"
 ###sh $BASE_COMMAND start bloomberg
 echo "############################Billboard START NEXT PROCESS 11##############################"

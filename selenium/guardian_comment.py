@@ -126,8 +126,12 @@ def findTopCommentAndTopNumber(self, page, isFirstPage,WAIT_SECONDS):
     URL = "%s#comments" % page.url
     self.driver.get(URL)
 
+    #if isFirstPage == False:
+    print("time wait {}".format(WAIT_SECONDS * 5))
     if isFirstPage == False:
-        time.sleep(WAIT_SECONDS)   
+        time.sleep(WAIT_SECONDS * 2)
+    else:
+        time.sleep(WAIT_SECONDS * 5)
 
     counter = 0
     comm = None

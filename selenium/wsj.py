@@ -97,7 +97,7 @@ for article in pages[:]:
 	
 	browser.get(url)
 	#if isFirstPage == False:
-	time.sleep(WAIT_SECONDS * 4)
+	time.sleep(WAIT_SECONDS * 5)
 	#isFirstPage = False
 
 	for cssPath in [NUM_REVIEWS2]:
@@ -108,7 +108,7 @@ for article in pages[:]:
 			print "numComments %s " % article.numComments
 			break
 		except Exception as e:
-			print('Exception WSJ2 {0}'.format(e))
+			print('Exception WSJ2 {0}, URL: {1}'.format(e, article.url))
 
 	if article.numComments < MIN_COMMENT_NUM:
 		print "CONTINUE: %s " % article.numComments
@@ -181,7 +181,7 @@ for article in pages[:]:
 	# if len (article.topComment) > (WORDS_LIMIT -1):
 	# 	article.topComment = "%s..." % article.topComment
 
-	article.topCommentNum = 0
+	article.topCommentNum = article.numComments * 2
 	article.tag = TAG
 
 	print("about to call getImageAndSave")
@@ -193,8 +193,10 @@ for article in pages[:]:
 	try:
 
 		#minNumComments=2, minTopCommentNum=2
-		isSuccessArticle = articleUtil.checkArticle(article, minTopCommentNum=-1)
-		if isSuccess and isSuccessArticle:
+		
+
+		#isSuccessArticle = articleUtil.checkArticle(article, minTopCommentNum=-1)
+		if isSuccess and articleUtil.checkArticle(article, minTopCommentNum=-1):
 			print("added")
 			rowElements.append(article)
 		else:

@@ -1,0 +1,24 @@
+{
+ "techcrunch": [
+  {
+   "img": "i/Multiples.jpg", 
+   "title": "Multiple Directions On Valuation Multiples", 
+   "url": "http://techcrunch.com/2015/02/19/multiple-directions-on-valuation-multiples/", 
+   "age": 1424338251, 
+   "topComment": "who the heck is max wolff", 
+   "tag": "tech", 
+   "topCommentNum": 5, 
+   "numComments": 9
+  }, 
+  {
+   "img": "i/Up-To-All.jpg", 
+   "title": "Automated Savings Startup Digit Opens Up To All", 
+   "url": "http://techcrunch.com/2015/02/19/automated-savings-startup-digit-opens-up-to-all/", 
+   "age": 1424365246, 
+   "topComment": "Except that this company is awful because it skims ALL of the profits (interest/returns on investment) from the end user. They'd be MUCH better of simply setting up a small automated transfer into an interest bearing account or a general index fund...", 
+   "tag": "tech", 
+   "topCommentNum": 5, 
+   "numComments": 15
+  }
+ ]
+}

@@ -1,0 +1,24 @@
+{
+ "techcrunch": [
+  {
+   "img": "i/usinesses.jpg", 
+   "title": "YC-Backed Kuhcoon Promises To Automate Facebook Ad Campaigns For Small Businesses", 
+   "url": "http://techcrunch.com/2015/02/19/yc-backed-kuhcoon-promises-to-automate-facebook-ad-campaigns-for-small-businesses/", 
+   "age": 1424366387, 
+   "topComment": "Congrats on the launch to Andrew & Team and thanks for the mention in the article Anthony! FYI tho AdEspresso launched a while ago the Rule-Based Optimization with Natural Language Interface. Things like: \"hey! every time an Adv performs 15% more tha...", 
+   "tag": "tech", 
+   "topCommentNum": 6, 
+   "numComments": 12
+  }, 
+  {
+   "img": "i/Up-To-All.jpg", 
+   "title": "Automated Savings Startup Digit Opens Up To All", 
+   "url": "http://techcrunch.com/2015/02/19/automated-savings-startup-digit-opens-up-to-all/", 
+   "age": 1424365246, 
+   "topComment": "Except that this company is awful because it skims ALL of the profits (interest/returns on investment) from the end user. They'd be MUCH better of simply setting up a small automated transfer into an interest bearing account or a general index fund...", 
+   "tag": "tech", 
+   "topCommentNum": 4, 
+   "numComments": 14
+  }
+ ]
+}

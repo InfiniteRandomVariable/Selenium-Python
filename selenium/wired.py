@@ -19,7 +19,7 @@ WEBSITE_URL = '%s' % BASE
 browser.get(WEBSITE_URL)
 
 rowElements = []
-divider = 5
+divider = 1
 MIN_LIKES = 10/divider
 MIN_COMMENT_NUM = 15/divider
 MAX_PAGE_VISIT = 3

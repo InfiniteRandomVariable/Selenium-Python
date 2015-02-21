@@ -1,0 +1,74 @@
+{
+ "rtomatoes": [
+  {
+   "img": "i/rland-USA.jpg", 
+   "title": "Movie This Week: McFarland USA", 
+   "url": "http://www.rottentomatoes.com/m/mcfarland_usa/", 
+   "age": 0, 
+   "topComment": "89%: From Disney comes MCFARLAND, the true against-all-odds story of the 1987 McFarland high school cross country team in an economically challenged community. (C) Disney", 
+   "tag": "ranking", 
+   "topCommentNum": 89, 
+   "numComments": 0
+  }, 
+  {
+   "img": "i/ild-Tales.jpg", 
+   "title": "Movie This Week: Wild Tales", 
+   "url": "http://www.rottentomatoes.com/m/wild_tales/", 
+   "age": 0, 
+   "topComment": "89%: Wickedly hilarious and delightfully deranged, Wild Tales is a subversive satire that doubles as a uniformly entertaining anthology film.", 
+   "tag": "ranking", 
+   "topCommentNum": 89, 
+   "numComments": 0
+  }, 
+  {
+   "img": "i/he-Marrow.jpg", 
+   "title": "Movie This Week: Digging Up the Marrow", 
+   "url": "http://www.rottentomatoes.com/m/digging_up_the_marrow/", 
+   "age": 0, 
+   "topComment": "80%", 
+   "tag": "ranking", 
+   "topCommentNum": 80, 
+   "numComments": 0
+  }, 
+  {
+   "img": "i/----81-7M.jpg", 
+   "title": "Box Office: Fifty Shades of Grey - $81.7M", 
+   "url": "http://www.rottentomatoes.com/m/fifty_shades_of_grey/", 
+   "age": 0, 
+   "topComment": "26%: While creatively better endowed than its print counterpart, Fifty Shades of Grey is a less than satisfying experience on the screen.", 
+   "tag": "ranking", 
+   "topCommentNum": 26, 
+   "numComments": 0
+  }, 
+  {
+   "img": "i/----35-6M.jpg", 
+   "title": "Box Office: Kingsman: The Secret Service - $35.6M", 
+   "url": "http://www.rottentomatoes.com/m/kingsman_the_secret_service/", 
+   "age": 0, 
+   "topComment": "72%: Stylish, subversive, and above all fun, Kingsman: The Secret Service finds director Matthew Vaughn sending up the spy genre with gleeful abandon.", 
+   "tag": "ranking", 
+   "topCommentNum": 72, 
+   "numComments": 0
+  }, 
+  {
+   "img": "i/----30-5M.jpg", 
+   "title": "Box Office: The SpongeBob Movie: Sponge Out of Water - $30.5M", 
+   "url": "http://www.rottentomatoes.com/m/the_spongebob_movie_sponge_out_of_water/", 
+   "age": 0, 
+   "topComment": "73%: The SpongeBob Movie: Sponge Out of Water won't win over many viewers who aren't fans of the show, but for the converted, it's another colorful burst of manic fun.", 
+   "tag": "ranking", 
+   "topCommentNum": 73, 
+   "numComments": 0
+  }, 
+  {
+   "img": "i/----16-4M.jpg", 
+   "title": "Box Office: American Sniper - $16.4M", 
+   "url": "http://www.rottentomatoes.com/m/american_sniper/", 
+   "age": 0, 
+   "topComment": "73%: Powered by Clint Eastwood's sure-handed direction and a gripping central performance from Bradley Cooper, American Sniper delivers a tense, vivid tribute to its real-life subject.", 
+   "tag": "ranking", 
+   "topCommentNum": 73, 
+   "numComments": 0
+  }
+ ]
+}

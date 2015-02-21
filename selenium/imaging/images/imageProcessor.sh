@@ -95,9 +95,11 @@ do
 
 	  	fi 
 
-	  	
+	  	if [ "$imageWidth" -lt 150 ] && [ "$imageHeight" -lt 150 ] ; then
 
-	  	if [ -z "$error" ] && [ "$imageWidth" -lt 300 ] && [ "$imageHeight" -lt 300 ] ; then
+	  		error="too small imageWidth: $imageWidth imageHeight: $imageHeight"
+
+	  	elif [ -z "$error" ] && [ "$imageWidth" -lt 300 ] && [ "$imageHeight" -lt 300 ] ; then
 			## "Landscape"
 			magickCommand=$magickCommand' -gravity center -background white -extent '"$defaultWidth"'x'"$defaultHeight"' -crop '"$defaultWidth"'x'"$defaultHeight"' '"$BASE/$fileNameJPG"
 

@@ -20,7 +20,7 @@ OneAndHalfDay = SECONDS_IN_A_DAY * 2
 UPLOAD_SUFFIX = 'uploaded'
 #IMAGE_KEY_SUBFOLDER = "images/"
 IMAGE_KEY_SUBFOLDER = "i/"
-MAX_IMAGE_SIZE = 100000
+MAX_IMAGE_SIZE = 60000
 MIN_IMAGE_SIZE = 5000
 #TEMP_PATH = 'guardian/1420592.json'
 
@@ -158,6 +158,8 @@ def sendData( localPath, buckName=None, forwardWrite=36):
 					else:
 						_name = name
 
+					# check the image name exists in the cloud for with or without upload suffix
+					# this will double check if the image has been uploaded to the cloud as sometime the image fail to upload but is incorrectly rename to upload suffix.
 
 					if _name in imageNameList[:]:
 						nameInTheList = True
@@ -169,43 +171,55 @@ def sendData( localPath, buckName=None, forwardWrite=36):
 					#print("name[:-len(UPLOAD_SUFFIX)]: {0}".format(name[:-(len(UPLOAD_SUFFIX)]))
 					print("3 try: {0}".format(name[:uploadSuffixSubstringHelper]))
 
-					if name.lower().endswith(ext) is True and not nameInTheList:
+
+					if name.lower().endswith(ext) is True and not nameInTheList or name.lower().endswith(UPLOAD_SUFFIX) is True and not nameInTheList:
+
+						if name.lower().endswith(UPLOAD_SUFFIX) is True:
+							thisName = name[:uploadSuffixSubstringHelper]
+						else:
+							thisName = name
+
+						
 						print("4")
-						keyName = "{0}{1}".format(IMAGE_KEY_SUBFOLDER, name)
+
+						keyName = "{0}{1}".format(IMAGE_KEY_SUBFOLDER, thisName)
+
 						print("2 keyName: {0}".format(keyName))
 						imagekey = b.new_key(keyName)
 
-						print("Uploading file name: {0}".format(name))
+						print("Uploading file name: {0}".format(thisName))
 
 						imagekey.Content_Type = "image/jpeg"
 
 						try:
 							pathToImageFile = "{0}/{1}".format(localPath,name)
 							img_size = os.stat(pathToImageFile).st_size
-							if img_size > MAX_IMAGE_SIZE or img_size < MIN_IMAGE_SIZE:
+							if img_size > MAX_IMAGE_SIZE or MIN_IMAGE_SIZE > img_size:
 								print(" WARNING: improper image size {0}: {1}".format(img_size, name ))
+								os.remove(pathToImageFile)
 								continue
 
 							imagekey.set_contents_from_filename(pathToImageFile)
 							imagekey.make_public()
-							localPathExt = "{0}{1}".format(pathToImageFile, UPLOAD_SUFFIX)
-							os.rename(pathToImageFile, localPathExt)
-							if os.path.exists(pathToImageFile):
-								os.remove(pathToImageFile)
+
+							if name.lower().endswith(ext) is True:
+								localPathExt = "{0}{1}".format(pathToImageFile, UPLOAD_SUFFIX)
+								os.rename(pathToImageFile, localPathExt)
+
+							#if os.path.exists(pathToImageFile):
+							#	os.remove(pathToImageFile)
 
 						except Exception as e:
 							print("Exception uploading image 0: {0} - {1}".format(name, e))
-					elif name.lower().endswith(ext) is True and nameInTheList:
-						try:
-							pathToImageFile = "{0}/{1}".format(localPath,name)
-							print("REMOVE file attemp: {0}".format(pathToImageFile))
-							os.remove(pathToImageFile)
-						except Exception as e:
-							print("Exception deleting image 0.1: {0} - {1}".format(name, e))
 
-					elif name.lower().endswith(UPLOAD_SUFFIX) is True and nameInTheList:
+					elif name.lower().endswith(UPLOAD_SUFFIX) is True and nameInTheList or name.lower().endswith(ext) is True and nameInTheList:
 
-						keyName = "{0}{1}".format(IMAGE_KEY_SUBFOLDER, name[:uploadSuffixSubstringHelper])
+						if name.lower().endswith(UPLOAD_SUFFIX) is True:
+							_name = name[:uploadSuffixSubstringHelper]
+						else:
+							_name = name
+
+						keyName = "{0}{1}".format(IMAGE_KEY_SUBFOLDER, _name)
 						imagekey = b.get_key(keyName)
 						print("Not Uploading file name: {0} last-modified: {1}".format(keyName, imagekey.last_modified))
 						##"Thu Jan 29 19:13:17 GMT-800 2015"
@@ -238,17 +252,25 @@ def sendData( localPath, buckName=None, forwardWrite=36):
 								os.remove(deleteFilePath)
 							except Exception as e:
 								print ("Exception in deleting key: {0} - {1}".format(imagekey, e))
+						elif name.lower().endswith(ext) is True:
+							pathToImageFile = "{0}/{1}".format(localPath,name)
+							localPathExt = "{0}{1}".format(pathToImageFile, UPLOAD_SUFFIX)
+							try:
+								os.rename(pathToImageFile, localPathExt)
+							except Exception as e:
+								print ("Exception in deleting key: {0} - {1}".format(pathToImageFile, e))
+
 						else:
 							print("WITHIN ONE DAY {0}".format(imagekey))
 
-					elif name.lower().endswith(UPLOAD_SUFFIX) is True:
-						systemPath = jsonHelper.getCompleteFilePath()
-						deleteFilePath = "{0}{1}/{2}".format(systemPath, dirname[1:], name)
-						try:
-							print("Deleting Path: {0}".format(deleteFilePath))
-							os.remove(deleteFilePath)
-						except Exception as e:
-							print ("Exception in deleting path: {0} - {1}".format(deleteFilePath, e))
+					# elif name.lower().endswith(UPLOAD_SUFFIX) is True:
+					# 	systemPath = jsonHelper.getCompleteFilePath()
+					# 	deleteFilePath = "{0}{1}/{2}".format(systemPath, dirname[1:], name)
+					# 	try:
+					# 		print("Deleting Path: {0}".format(deleteFilePath))
+					# 		os.remove(deleteFilePath)
+					# 	except Exception as e:
+					# 		print ("Exception in deleting path: {0} - {1}".format(deleteFilePath, e))
 
 
 			os.path.walk(topdir, step, exten)

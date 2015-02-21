@@ -20,8 +20,10 @@ browser.get(WEBSITE_URL)
 
 rowElements = []
 divider = 1
-MIN_LIKES = 10/divider
+#MIN_LIKES = 0
+MIN_LIKES = 5/divider
 MIN_COMMENT_NUM = 15/divider
+#MIN_COMMENT_NUM = 0
 MIN_ARTICLES = 1
 #MIN_COMMENT_NUM = 1/divider
 MAX_PAGE_VISIT = 3
@@ -118,11 +120,11 @@ for article in pages[:]:
 	try:
 		article.topCommentNum = int(tCN)
 	except Exception as e:
-		print "CONTINUE 3: %s" % article.topCommentNum
+		print ("CONTINUE 3: {0} {1}".format(article.topCommentNum,e))
 		continue
 
 	if article.topCommentNum < MIN_LIKES:
-		print "CONTINUE4: %s " % article.topCommentNum
+		print ("CONTINUE4:  {0} {1}".format(article.topCommentNum, e))
 		continue
 
 
@@ -141,16 +143,20 @@ for article in pages[:]:
 	print "FINAL URL %s" % article.tag
 
 
-	if isSuccess and article.img and article.topComment and article.age and article.topCommentNum and article.url and len(article.title) > 2 and len(article.topComment) > 2 and len(article.url) > len(BASE) and article.age > 10:
+	
 
-		isSuccess = imageUtil.imageProcedure(browser, article.title, cssXpaths=[common_classes.CSSXPATH("article .a-image img", "src", "css"), common_classes.CSSXPATH("article .ndn_startOverlayContainer.ndn_playerOverlay .backstretch>img", "src", "css")])
+	isSuccess = imageUtil.imageProcedure(browser, article.title, cssXpaths=[common_classes.CSSXPATH("article .a-image img", "src", "css"), common_classes.CSSXPATH("article .ndn_startOverlayContainer.ndn_playerOverlay .backstretch>img", "src", "css")])
+
+	if isSuccess:
 		article.img = imageUtil.imageTitlePathJPG(article.title)
-		if isSuccess and article.img and len(article.img) > 2:
+		
+		if articleUtil.checkArticle(article, minNumComments=MIN_COMMENT_NUM, minTopCommentNum=MIN_LIKES):
 			rowElements.append(article)
 
 	else:
 		print "article title %s \narticle.topComment %s \narticle.url %s \narticle.age %s " %( article.title,article.topComment, article.url, article.age)
 		pass
-		
+
+print("completed: {}".format(len(rowElements)))	
 jsonHelper.writeToFile(timeHelper.APP_TIMESTAMP(),rowElements,"nydailynews",MIN_ARTICLES)
 browser.quit()
