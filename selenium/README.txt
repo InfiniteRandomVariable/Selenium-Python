@@ -91,8 +91,6 @@ ISSUES:
 	create the output to a designated log file
 	possible error - file permission
 
-- nytimes
-- atlantic
 - nydailynews
 
 

@@ -42,8 +42,98 @@ def readCred():
 		dictCred[ACCESS] = content[counter]
 		counter = counter + 1
 		dictCred[SECRET] = content[counter]
-		print content
+		#print content
 		return dictCred
+
+def accessBucket(buckName=None):
+
+	if not buckName or len(buckName) < 1:
+		buckName = BUCKET_NAME
+		#return
+
+	try:
+		cred = readCred()
+		conn = S3Connection(cred[ACCESS], cred[SECRET])
+		b = None
+		try:
+			b = conn.get_bucket(buckName)
+		except Exception as e:
+			b = conn.create_bucket(buckName)
+
+		if not b:
+			print("Error: bucket cannot be nil")
+			return
+		else:
+			return b
+
+	except Exception as e:
+		print("Access Bucket Error: {0}".format(e))
+
+def getBucketList(pathToFileName=IMAGE_KEY_SUBFOLDER, bucket=None):
+
+	if not bucket:
+		bucket = accessBucket()
+
+	#nameList = [v.name[len(pathToFileName):] for v in list(b.list(pathToFileName, "/"))]
+	return list(bucket.list(pathToFileName, "/"))
+
+def getBuckNameList(pathToFileName=IMAGE_KEY_SUBFOLDER, bucket=None):
+	keyList = getBucketList(bucket=bucket)
+
+	return [v.name for v in keyList]
+
+
+def deleteProcedure(specifiedDuration=OneAndHalfDay):
+
+	dt = datetime.datetime.now()
+	print("1")
+	nowInSeconds = time.mktime(dt.timetuple())
+	b = accessBucket()
+	keyList = getBuckNameList(bucket=b)
+
+	for keyName in keyList[:]:
+		
+		imagekey = b.get_key(keyName)
+		print("Not Uploading file name: {0} last-modified: {1}".format(keyName, imagekey.last_modified))
+		##"Thu Jan 29 19:13:17 GMT-800 2015"
+
+		# print("imageNameList: {0}".format(imageNameList[0]))
+
+		#2015-02-19T18:32:32.000Z
+
+		modified = time.strptime(imagekey.last_modified, '%a, %d %b %Y %H:%M:%S %Z')
+
+		#convert to datetime
+		print("time date 0 keyName: {0}".format(keyName))
+		mdt = datetime.datetime.fromtimestamp(mktime(modified))
+		print("time date 1")
+		#(dt.datetime(1970,1,1)).total_seconds()
+		
+		#modifiedTimeInSeconds = mdt.datetime(1970,1,1).total_seconds()
+		modifiedTimeInSeconds = time.mktime(mdt.timetuple())
+		print("time date 2")
+
+		durationInSeconds = nowInSeconds - modifiedTimeInSeconds
+		#systemPath = jsonHelper.getCompleteFilePath()
+		#print("should delete: {0}{1}/{2}".format(systemPath, dirname[1:], name))
+		#os.remove(localPath)
+		#assume default dirname is "./xyz"
+		#deleteFilePath = "{0}{1}/{2}".format(systemPath, dirname[1:], name)
+
+		if durationInSeconds > specifiedDuration:
+			try:
+				print("LONGER THAN ONE DAY deleting {0}".format(imagekey))
+				b.delete_key(imagekey)
+		#		os.remove(deleteFilePath)
+			except Exception as e:
+				print ("Exception in deleting key: {0} - {1}".format(imagekey, e))
+
+		else:
+			print("WITHIN ONE DAY {0}".format(imagekey))
+
+
+
+
 
 #NOTE: the S3 path will be lower case where local file name maybe upper case
 #Parameters: forwardWrite default to 5 to ensure continuity of the data for upcoming event and expected the newer data will overwrite this
@@ -69,17 +159,17 @@ def sendData( localPath, buckName=None, forwardWrite=36):
 
 
 	try:
-		cred = readCred()
-		conn = S3Connection(cred[ACCESS], cred[SECRET])
-		b = None
-		try:
-			b = conn.get_bucket(buckName)
-		except Exception as e:
-			b = conn.create_bucket(buckName)
+		# cred = readCred()
+		# conn = S3Connection(cred[ACCESS], cred[SECRET])
+		b = accessBucket()
+		# try:
+		# 	b = conn.get_bucket(buckName)
+		# except Exception as e:
+		# 	b = conn.create_bucket(buckName)
 
-		if not b:
-			#print "Error: bucket cannot be nil"
-			return
+		# if not b:
+		# 	#print "Error: bucket cannot be nil"
+		# 	return
 
 		systemPath = jsonHelper.getCompleteFilePath().lower().split('/')
 		localPathArray = localPath.lower().split('/')
